@@ -39,5 +39,14 @@ define("_AM_FLUSH_INFO", "Force checking");
 
 define("_AM_CHECKALL_CHECK", "Mark all checkbox");
 
+define("_AM_TRACK_EXPIRED", "Remove Tracking Records");
+define("_AM_EXPIRE_COND1", "no access %d days, ");
+define("_AM_EXPIRE_COND2", "And access count lower than %d times.");
+define("_AM_EXPIRE_RECORDS", "Delete condition records are %d.");
+define("_AM_EXPIRE_DAYS", "No access days");
+define("_AM_EXPIRE_REFS", "Minimum access");
+define("_AM_EXPIRE_LINK", "Delete no linked");
+
 define("_AM_PAGE","Page");
+define("_AM_CONFIRM","Re-count condition");
 ?>
