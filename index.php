@@ -32,48 +32,58 @@ if (!empty($HTTP_GET_VARS['id'])) {
 
 $tbl = $xoopsDB->prefix("trackback");
 $tbr = $xoopsDB->prefix("trackback_ref");
-$tags = preg_match("/^XOOPS 1\\./",XOOPS_VERSION)?array("bg1","bg3"):array("even","odd");
-
-function strim($s, $l) {
-    if (strlen($s)<$l) return $s;
-    $h = intval(($l-3)/2);
-    $t = strlen($s)-$h+3;
-    return substr($s,0,$h)."...".substr($s,$t);
-}
+$tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2'";
+include_once "functions.php";
 
 if ( empty($track_id) ) {
     include(XOOPS_ROOT_PATH."/header.php");
     OpenTable();
     echo "<h4>"._MI_TRACKBACK_NAME."</h4>";
-    $result = $xoopsDB->query("SELECT track_id, track_uri, count(ref_id) FROM $tbl,$tbr WHERE track_id=track_from AND checked=1 GROUP BY track_from ORDER BY track_id");
+    $result = $xoopsDB->query("SELECT track_id, track_uri, count(ref_id) FROM $tbl,$tbr WHERE track_id=track_from AND disable=0 AND linked=1 GROUP BY track_from ORDER BY track_id");
     if ($xoopsDB->getRowsNum($result)) {
-	echo "<table border='0' cellpadding='2' cellspacing='1' class='bg2'>\n";
+	echo "<table $tblstyle>\n";
 	echo "<tr class='bg1'><th>"._TB_TRACKPAGE."</th><th>"._TB_REF_SOURCE."</th><th><br/></th></tr>\n";
 	$nc = 1;
 	while (list($tid, $uri, $refs)=$xoopsDB->fetchRow($result)) {
 	    $bg = $tags[($nc++ % 2)];
-	    echo "<tr class='$bg'><td><a href='index.php?id=$tid'>$uri</a></td><td align='right'>$refs</a></td><td><a href='$uri'>"._TB_TRACKED."</a></td></tr>\n";
+	    echo "<tr class='$bg'><td><a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td><td><a href='$uri'>"._TB_TRACKED."</a></td></tr>\n";
 	}
 	echo "</table>\n";
     }
     CloseTable();
     include (XOOPS_ROOT_PATH."/footer.php");
 } else {
+    $result = $xoopsDB->query("SELECT track_uri,disable FROM $tbl WHERE track_id=$track_id");
+    list($uri, $disable) = $xoopsDB->fetchRow($result);
+    if (!isset($disable) || $disable) {
+	redirect_header("index.php",1,_TB_NOPAGE);
+	exit();
+    }
+
     include(XOOPS_ROOT_PATH."/header.php");
     OpenTable();
     echo "<h4>"._MI_TRACKBACK_NAME."</h4>";
-    $result = $xoopsDB->query("SELECT track_uri FROM $tbl WHERE track_id=$track_id");
-    list($uri) = $xoopsDB->fetchRow($result);
-    $result = $xoopsDB->query("SELECT nref, ref_url, since FROM $tbr WHERE track_from=$track_id AND checked=1 ORDER BY nref DESC");
-    echo "<p>"._TB_TRACKPAGE.": <a href='$uri'>$uri</a></p>\n";
+    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$track_id AND linked=1 ORDER BY nref DESC");
+    echo "<p>"._TB_TRACKPAGE.": <a href='$uri'>".uri_to_name($uri)."</a></p>\n";
     if ($xoopsDB->getRowsNum($result)) {
-	echo "<table border='0' cellpadding='2' cellspacing='1' class='bg2'>\n";
-	echo "<tr class='bg1'><th>"._TB_REF_COUNT."</th><th>"._TB_REF_URL."</th><th>"._TB_REF_DATE."</th></tr>\n";
+	echo "<table $tblstyle>\n";
 	$nc = 1;
-	while (list($nref, $url, $d)=$xoopsDB->fetchRow($result)) {
+	while ($data=$xoopsDB->fetchArray($result)) {
 	    $bg = $tags[($nc++ % 2)];
-	    $rdate = formatTimestamp($d, "m");
-	    echo "<tr class='$bg'><td align='right'>$nref</td><td><a href='$url'>".strim($url, 60)."</a></td><td>$rdate</td></tr>\n";
+	    $rdate = formatTimestamp($data['since'], "m");
+	    $url = $data['ref_url'];
+	    $nref = $data['nref'];
+	    $title = $data['title'];
+	    if ($title == '') $title = strim($url);
+	    if ($data['context'] != '') {
+		$ctext = "...".preg_replace('/<u>/', "<u class='anc'>", $data['context'])."...";
+	    } else {
+		$ctext = "";
+	    }
+	    echo "<tr class='$bg'><td><a href='$url'>$title</a>".
+		"<div style='font-size: small; text-align: left;' class='context'>$ctext</div>".
+		"<div style='font-size: xx-small; text-align: left;'>"._TB_REF_COUNT.":$nref [$rdate] "._TB_REF_URL." <a href='$url'>$url</a></span></div>".
+		"</td></tr>\n";
 	}
 	echo "</table>\n";
     }

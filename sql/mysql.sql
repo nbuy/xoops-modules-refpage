@@ -1,7 +1,7 @@
 #
 # XOOPS 1.3.x trackback SQL schema
 #
-# $Id: mysql.sql,v 1.1 2003/11/20 03:51:33 nobu Exp $
+# $Id: mysql.sql,v 1.2 2003/12/02 03:52:09 nobu Exp $
 
 # --------------------------------------------------------
 
@@ -14,6 +14,7 @@ CREATE TABLE trackback (
   track_id int(10) unsigned NOT NULL auto_increment,
   track_uri varchar(255) NOT NULL default '',
   since int(10) unsigned NOT NULL default '0',
+  disable int(1) unsigned NOT NULL default '0',
   PRIMARY KEY  (track_id),
   KEY track_id (track_uri)
 ) TYPE=MyISAM;
@@ -28,7 +29,10 @@ CREATE TABLE trackback_ref (
   since int(10) unsigned NOT NULL default '0',
   track_from int(10) unsigned NOT NULL,
   ref_url varchar(255) NOT NULL default '',
+  title   varchar(60) NOT NULL default '',
+  context tinytext NOT NULL default '',
   nref int(10) unsigned NOT NULL default '0',
+  linked  int(1) unsigned NOT NULL default '0',
   checked int(1) unsigned NOT NULL default '0',
   PRIMARY KEY  (ref_id),
   KEY ref_id (ref_url)
