@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.3 2003/12/04 17:24:16 nobu Exp $
+// $Id: functions.php,v 1.4 2003/12/09 07:15:38 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -29,13 +29,13 @@ function strim($s, $l=50) {
 function myurldecode($url) {
     $url = rawurldecode($url);
     if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
-	$url = mb_convert_encoding($url, _CHARSET, "JIS,UTF-8,Shift_JIS,EUC-JP");
+	$url = mb_convert_encoding($url, _CHARSET, "EUC-JP,UTF-8,Shift_JIS,JIS");
     }
     return $url;
 }
 
 // substrings with support multibytes (--with-mbstring)
-function mysubstr($s, $f, $l=9999) {
+function mysubstr($s, $f, $l=99999) {
     if (XOOPS_USE_MULTIBYTES && function_exists("mb_strcut")) {
 	return mb_strcut($s, $f, $l, _CHARSET);
     } else {
@@ -62,6 +62,32 @@ function make_page_index($title, $max, $cur, $format, $asis=" <b>[%d]</b>") {
 // Win/Mac/Unix's newline normalize
 function crlf2nl($s) {
     return preg_replace("/\x0D\x0A|\x0D|\x0A/","\n", $s);
+}
+
+function make_track_item($data, $add="") {
+    $cdate = formatTimestamp($data['since'], "m");
+    $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
+    $url = $data['ref_url'];
+    $nref = $data['nref'];
+    $title = $data['title'];
+    $len = max($trackConfig['title_len'],255);
+    $alt = "";
+    if ($title == '') $title = strim(myurldecode($url), $len);
+    elseif (strlen($title)>$len) {
+	$alt = " title='$title'";
+	$title=mysubstr($title, 0, $len-2)."..";
+    }
+    if ($data['context'] != '') {
+	$ctext = "...".preg_replace('/<u>/', "<u class='anc'>", $data['context'])."...";
+    } else {
+	$ctext = "";
+    }
+    return "<a href='$url'$alt target='_blank' class='trtitle'>$title</a>$add".
+	"<div style='font-size: small;' class='trtext'>$ctext</div>".
+	"<div style='font-size: xx-small;' class='trinfo'>".
+	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
+		_TB_REF_MDATE." $mdate]<br/>"._TB_REF_URL.
+	" <a href='$url'>".myurldecode($url)."</a></div>";
 }
 
 $tags = preg_match("/^XOOPS 1\\./",XOOPS_VERSION)?array("bg1","bg3"):array("even","odd");

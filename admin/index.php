@@ -1,5 +1,5 @@
 <?php
-// $Id: index.php,v 1.4 2003/12/04 17:24:16 nobu Exp $
+// $Id: index.php,v 1.5 2003/12/09 07:15:38 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -9,6 +9,7 @@ $op = "list";
 if ( isset($HTTP_GET_VARS['op']) ) $op = $HTTP_GET_VARS['op'];
 if ( isset($HTTP_POST_VARS['op']) ) $op = $HTTP_POST_VARS['op'];
 $page = isset($HTTP_GET_VARS['page'])?$HTTP_GET_VARS['page']:1;
+$start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
 $tbl = $xoopsDB->prefix("trackback");
@@ -39,28 +40,29 @@ if ( $op == "list" ) {
 
     $result = $xoopsDB->query("SELECT count(track_id) FROM $tbl WHERE $cond 1");
     list($nrec) = $xoopsDB->fetchRow($result);
-    $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
     $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $trackConfig['list_max'], $start);
     if ($nrec) {
-	echo make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?page=%d$opt'>(%d)</a>");
+	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?page=%d$opt'>(%d)</a>");
+	echo $pctrl;
 	echo "<form action='index.php' method='post'>";
 	echo "<table class='bg2' cellspacing='1' border='0'>\n";
 	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_TRACKBACK_PAGE."</th><th>"._AM_REF_LINKS."</th></tr>\n";
 	$nc = 1;
-	$sw = array(0=>_AM_ENTRY_ENABLE, 1=>_AM_ENTRY_DISABLE);
 	
 	while (list($tid, $uri, $count, $disable) = $xoopsDB->fetchRow($result)) {
 	    $bg = $disable?'dis':$tags[($nc++ % 2)];
 	    echo "<tr class='$bg'>".
-		"<td style='text-align: center'>".myselect("disable[$tid]", $sw, $disable)."</td>".
+		"<td style='text-align: center'><input type='checkbox' name='disable[$tid]' ".($disable?"checked":"")." /><input type='hidden' name='trid[$tid]' value='1' /></td>".
 		"<td><a href='index.php?op=edit&tid=$tid'>".uri_to_name($uri)."</a></td>".
 		"<td style='text-align: center'>$count</td>".
 		"</tr>\n";
 	}
 	echo "</table>\n";
 	echo "<input type='hidden' name='op' value='disable' />".
+	    "<input type='hidden' name='m' value='$mode' />".
 	    "<input type='submit' value='"._AM_SUBMIT_DISABLE."' />".
 	    "</form>\n";
+	echo $pctrl;
     } else {
 	echo _AM_TRACK_NODATA;
     }
@@ -77,36 +79,40 @@ if ( $op == "edit" ) {
     OpenTable();
     echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_PAGE."</h4>";
 
-    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$tid ORDER BY linked DESC, ref_url");
-    $n = $xoopsDB->getRowsNum($result);
-    echo "<p>"._AM_TRACK_TARGET.": <a href='$uri'>".uri_to_name($uri)."</a>".
+    $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE track_from=$tid");
+    list($nrec) = $xoopsDB->fetchRow($result);
+    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$tid ORDER BY linked DESC, ref_url", $trackConfig['list_max'], $start);
+    echo "<p>"._AM_TRACK_TARGET.": <a href='index.php'>"._AM_TRACK_LIST."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a>".
 	($disable?" - "._AM_DISABLE_MODE:"")."</p>";
-    if ($n) {
+    $pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=edit&tid=$tid&page=%d$opt'>(%d)</a>");
+    echo $pctrl;
+    if ($nrec) {
 	echo "<form action='index.php' method='post'>";
 	echo "<table class='bg2' cellspacing='1' border='0'>\n";
-	echo "<tr class='bg1'><th>"._AM_TRACK_SHOW."</th><th>"._AM_REF_URL."</th><th>"._AM_REF_COUNT."</th><th>"._AM_REF_CHECKED."</th></tr>\n";
+	echo "<tr class='bg1'><th>"._AM_REF_URL."</th></tr>\n";
 	$nc = 1;
 	while ($data = $xoopsDB->fetchArray($result)) {
 	    $bg = $tags[($nc++ % 2)];
-	    $url = $data['ref_url'];
 	    $rid = $data['ref_id'];
 	    $mkl = $data['linked']?"checked":"";
-	    $mkc = $data['checked'];
-	    $title = $data['title'];
-	    if ($title == '') $title = strim(myurldecode($url), $trackConfig['title_len']);
-	    echo "<tr class='$bg'>".
-		"<td style='text-align: center'><input type='checkbox' name='link[$rid]' $mkl /><input type='hidden' name='refid[$rid]' value='ok' /></td>".
-		"<td><a href='$url'>$title</a><div style='font-size: xx-small; text-align: left;'>".strim($url,80)."</div></td>".
-		"<td style='text-align: center'>".$data['nref']."</td>".
-		"<td style='text-align: center'>".($mkc?_AM_CHECK:_AM_UNCHECK)."</a></td>".
+	    $start++;
+	    $fbox = ($data['mtime']>10)?" "._AM_FLUSH_INFO.":<input type='checkbox' name='flush[$rid]' />":"";
+	    echo "<tr class='$bg'><td>".
+		"<input type='checkbox' name='link[$rid]' $mkl />".
+		"<input type='hidden' name='refid[$rid]' value='ok' />".
+		" #$start: ".($data['checked']?"":" ("._AM_UNCHECK.")").
+		make_track_item($data, $fbox).
+		"</td>".
 		"</tr>\n";
 	}
 	echo "</table>\n";
 	echo "<input type='hidden' name='op' value='edit_update' />".
 	    "<input type='hidden' name='tid' value='$tid' />".
-	    "<input type='submit' value='"._SUBMIT."' />".
+	    "<input type='submit' value='"._AM_SUBMIT_LINK."' />".
 	    "</form>\n";
     }
+    echo $pctrl;
+
     CloseTable();
     xoops_cp_footer();
     exit();
@@ -114,20 +120,24 @@ if ( $op == "edit" ) {
 
 if ( $op == "edit_update" ) {
     $tid = $HTTP_POST_VARS['tid'];
-    if (isset($HTTP_POST_VARS['link'])) {
-	$sets = "";
-	$resets = "";
-	$link = $HTTP_POST_VARS['link'];
-	foreach ($HTTP_POST_VARS['refid'] as $i => $v) {
-	    if (isset($link[$i])) {
-		$sets .= ($sets==""?"":" OR ")."ref_id=$i";
-	    } else {
-		$resets .= ($resets==""?"":" OR ")."ref_id=$i";
-	    }
+    $sets = "";
+    $resets = "";
+    $flushs = "";
+    $link = isset($HTTP_POST_VARS['link'])?$HTTP_POST_VARS['link']:array();
+    $flush = isset($HTTP_POST_VARS['flush'])?$HTTP_POST_VARS['flush']:array();
+    foreach ($HTTP_POST_VARS['refid'] as $i => $v) {
+	if (isset($link[$i])) {
+	    $sets .= ($sets==""?"":" OR ")."ref_id=$i";
+	} else {
+	    $resets .= ($resets==""?"":" OR ")."ref_id=$i";
 	}
-	if ($resets != "") $xoopsDB->query("UPDATE $tbr SET linked=0 WHERE () AND track_from=$tid");
-	if ($sets != "") $xoopsDB->query("UPDATE $tbr SET linked=1 WHERE ($cond) AND track_from=$tid");
+	if (isset($flush[$i])) {
+	    $flushs = ($resets==""?"":" OR ")."ref_id=$i";
+	}
     }
+    if ($resets != "") $xoopsDB->query("UPDATE $tbr SET linked=0 WHERE ($resets) AND track_from=$tid");
+    if ($sets != "") $xoopsDB->query("UPDATE $tbr SET linked=1 WHERE ($sets) AND track_from=$tid");
+    if ($flushs != "") $xoopsDB->query("UPDATE $tbr SET mtime=1 WHERE ($sets) AND track_from=$tid");
     redirect_header("index.php?op=edit&tid=$tid",1,_AM_DBUPDATED);
     exit();
 }
@@ -139,6 +149,21 @@ if ( $op == "check" ) {
     $result = $xoopsDB->query("SELECT track_id,track_uri, ref_id,ref_url,title, context, nref, linked FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
     if ($n) {
+	echo "<script>
+<!--
+function myCheckAll(formname, switchid, group) {
+	var ele = document.forms[formname].elements;
+	var switch_cbox = xoopsGetElementById(switchid);
+	for (var i = 0; i < ele.length; i++) {
+		var e = ele[i];
+		if ( (e.name != switch_cbox.name) && (e.id==group) && (e.type == 'checkbox') ) {
+			e.checked = switch_cbox.checked;
+		}
+	}
+}
+-->
+</script>";
+	$allbox = "<input name='allbox' id='allbox' onclick='myCheckAll(\"refchk\", \"allbox\", \"check\");' type='checkbox' value='Check All' />";
 	echo "<form action='index.php' method='post' name='refchk'>";
 	echo "<table class='bg2' cellspacing='1' cellpadding='2' border='0'>\n";
 	echo "<tr class='bg1'><th>"._AM_TRACK_TARGET."</th><th>"._AM_REF_CHECKED."</th><th>"._AM_REF_URL."</th><th>"._AM_REF_COUNT."</th><th>"._AM_TRACK_SHOW."</th></tr>\n";
@@ -154,15 +179,16 @@ if ( $op == "check" ) {
 	    if ($title == '') $title = strim(myurldecode($url), $trackConfig['title_len']);
 	    echo "<tr class='$bg'>".
 		"<td><a href='$uri'>".uri_to_name($uri)."</a></td>".
-		"<td style='text-align: center'><input type='checkbox' name='check[$rid]' /></td>".
+		"<td style='text-align: center'><input type='checkbox' name='check[$rid]' id='check' /></td>".
 		"<td><a href='$url' target='_blank' onclick='javascript:document.forms[\"refchk\"].elements[\"check[$rid]\"].checked=true;'>$title</a><div style='font-size: xx-small; text-align: left;'>".strim($url,80)."</div></td>".
 		"<td style='text-align: center'>".$data['nref']."</td>".
 		"<td style='text-align: center'><input type='checkbox' name='link[$rid]' $mkl /></td>".
 		"</tr>\n";
 	}
 	echo "</table>\n";
-	echo "<input type='hidden' name='op' value='check_update' />".
-	    "<input type='submit' value='"._SUBMIT."' />".
+	echo $allbox." "._AM_CHECKALL_CHECK;
+	echo "<p><input type='hidden' name='op' value='check_update' />".
+	    "<input type='submit' value='"._SUBMIT."' /></p>".
 	    "</form>\n";
     } else {
 	echo _AM_NO_UNCHECKED;
@@ -195,14 +221,20 @@ if ( $op == "check_update" ) {
 }
 
 if ( $op == "disable" ) {
-    if (isset($HTTP_POST_VARS['disable'])) {
-	foreach ($HTTP_POST_VARS['disable'] as $tid => $v) {
-	    $xoopsDB->query("UPDATE $tbl SET disable=$v WHERE track_id=$tid");
+    $disable = isset($HTTP_POST_VARS['disable'])?$HTTP_POST_VARS['disable']:array();
+    $resets = "";
+    $sets = "";
+    foreach ($HTTP_POST_VARS['trid'] as $tid => $v) {
+	if (isset($disable[$tid])) {
+	    $sets .= ($sets==""?"":" OR ")."track_id=$tid";
+	} else {
+	    $resets .= ($resets==""?"":" OR ")."track_id=$tid";
 	}
-	redirect_header("index.php",1,_AM_DBUPDATED);
-    } else {
-	redirect_header("index.php",1,_AM_NODISABLE);
     }
+    if ($resets!="") $xoopsDB->query("UPDATE $tbl SET disable=0 WHERE $resets");
+    if ($sets!="") $xoopsDB->query("UPDATE $tbl SET disable=1 WHERE $sets");
+    
+    redirect_header("index.php".(empty($HTTP_POST_VARS['m'])?"":"?m=".$HTTP_POST_VARS['m']),1,_AM_DBUPDATED);
     exit();
 }
 

@@ -19,6 +19,11 @@ if ( file_exists("../language/".$xoopsConfig['language']."/admin.php") ) {
 } else {
 	include("../language/english/admin.php");
 }
+if ( file_exists("../language/".$xoopsConfig['language']."/main.php") ) {
+	include("../language/".$xoopsConfig['language']."/main.php");
+} else {
+	include("../language/english/admin.php");
+}
 $modbase = XOOPS_ROOT_PATH."/modules/".$xoopsModule->dirname();
 if (function_exists("getCache")) {
     eval(getCache($xoopsModule->dirname()."/config.php"));

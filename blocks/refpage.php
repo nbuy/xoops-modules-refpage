@@ -1,7 +1,7 @@
 <?php
-// $Id: refpage.php,v 1.7 2003/12/04 17:24:16 nobu Exp $
+// $Id: refpage.php,v 1.8 2003/12/09 07:15:38 nobu Exp $
 function b_trackback_log_show($options) {
-    global $xoopsDB, $trackConfig, $xoopsUser;
+    global $xoopsDB, $trackConfig;
     $moddir = 'trackback';
 
     // ** trackback recoding **
@@ -18,8 +18,9 @@ function b_trackback_log_show($options) {
 
     $sql = "SELECT track_id,disable FROM $tbl WHERE track_uri='$uriq'";
     $result = $xoopsDB->query($sql);
-    // referere self site
+    // referere self site, 2nd will be fake referer (Robots?).
     if (preg_match("/^".preg_quote(XOOPS_URL,"/")."\//", $ref)) $ref="";
+    elseif (preg_match("/^".preg_quote(XOOPS_URL,"/")."\$/", $ref)) $ref="";
     if ($xoopsDB->getRowsNum($result)) {
 	list($tid, $disable) = $xoopsDB->fetchRow($result);
     } else {
@@ -137,10 +138,7 @@ function b_trackback_log_show($options) {
 	    if ($nn>0) {
 		$body .= "<div style='text-align: center;'>".sprintf(_MB_TRACKBACK_REST, $nn)."</div>\n";
 	    }
-	    $mod = XoopsModule::getByDirname($moddir);
-	    if ( (!empty($xoopsUser) &&
-		  XoopsGroup::checkRight("module", $mod->mid(), $xoopsUser->groups())) ||
-		XoopsGroup::checkRight("module", $mod->mid(), 0) ) {
+	    if (mod_allow_access($moddir)) {
 		$body .= "<div style='text-align: right'><a href='".XOOPS_URL.
 		    "/modules/$moddir/index.php?id=$tid'>".
 		    _MB_TRACKBACK_MORE."</a></div>\n";
@@ -206,7 +204,7 @@ function trackback_get_details($ref, $uri) {
  
     if ($page) {
 	if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
-	    $page = mb_convert_encoding($page, _CHARSET, "JIS,UTF-8,Shift_JIS,EUC-JP");
+	    $page = mb_convert_encoding($page, _CHARSET, "EUC-JP,UTF-8,Shift_JIS,JIS");
 	}
 	if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
 	    $title = $d[1];
@@ -238,4 +236,22 @@ function trackback_get_details($ref, $uri) {
     }
     return array($title, $ctext, $linked, $checked);
 }
+
+function mod_allow_access($dirname) {
+    global $xoopsUser;
+    if (preg_match("/^XOOPS 2/",XOOPS_VERSION)) {
+	$modhandler =& xoops_gethandler('module');
+	$mod =& $modhandler->getByDirname($dirname);
+	$handler =& xoops_gethandler('groupperm');
+	return (!empty($xoopsUser) &&
+		$handler->checkRight("module_read", $mod->getVar("mid"), $xoopsUser->getGroups())) ||
+	    $handler->checkRight("module_read", $mod->getVar("mid"), XOOPS_GROUP_ANONYMOUS);
+    } else {
+	$mod = XoopsModule::getByDirname($dirname);
+	return (!empty($xoopsUser) &&
+		XoopsGroup::checkRight("module", $mod->mid(), $xoopsUser->groups())) ||
+	    XoopsGroup::checkRight("module", $mod->mid(), 0);
+    }
+}
+
 ?>

@@ -1,6 +1,6 @@
 <?php
 $modversion['name'] = _MI_TRACKBACK_NAME;
-$modversion['version'] = 0.6;
+$modversion['version'] = 0.7;
 $modversion['description'] = _MI_TRACKBACK_DESC;
 $modversion['author'] = "Nobuhiro Yasutomi ( http://mysite.ddo.jp/ )";
 $modversion['credits'] = "Nobuhiro Yasutomi";
@@ -37,4 +37,6 @@ $modversion['blocks'][1]['options'] = "8|18";
 
 // Menu
 $modversion['hasMain'] = 1;
+$modversion['sub'][1]['name'] = _MI_TRACKBACK_SMENU1;
+$modversion['sub'][1]['url'] = "index.php?id=all";
 ?>
