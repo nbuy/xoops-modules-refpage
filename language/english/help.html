@@ -16,7 +16,7 @@ pre { color: #600000; }
 
 <blockquote>
 <em>In English resources may be BAD translation.  Please someone 
-rewrite and contribute me. I will be merge in archive.
+rewrite and contribute <a href="nobuhiro.yasutomi@nifty.ne.jp">me</a>. I will be merge in archive.
 Also other language translation are welcome.
 </em>
 </blockquote>
@@ -29,7 +29,7 @@ trackback information.</p>
 This module require following:
 
 <ul>
-  <li>Work with XOOPS 1.3.x and XOOPS 2.0.x</li>
+  <li>Work with XOOPS 1.3.x or XOOPS 2.0.x</li>
   <li>Need in PHP mbstring function if support MULTIBYTE</li>
   <li>License is GPL2 (same as XOOPS)</li>
 </ul>
@@ -73,6 +73,20 @@ When use with XOOPS 1.3.x, and Headline module to active, please fix following:
  
  	class RSStoHTML
  	{
+</pre>
+
+<h2>Stylesheet</h2>
+
+Display page in this module, using stylesheet if you want to modify like font
+sizes and/or colors. Concretely, add class in themes style.css or xoops.css in root as with following:
+<pre>
+.trtitle { color: #0000c0; } /* Title */
+.trtext { /* origin context */
+    font-size: small; text-align: left; margin-left: 1em; 
+}
+.trinfo { /* added information */
+    font-size: x-small; text-align: left; 
+}
 </pre>
 
 <h2>Administration</h2>
@@ -168,7 +182,7 @@ href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggesti
 <h2>Changes</h2>
 
 <dl>
-  <dd>[2003/12/x] trackback-1.0 Release</dd>
+  <dd>[2003/12/11] trackback-1.0 Release</dd>
 </dl>
 --
 <address>
@@ -176,6 +190,6 @@ Nobuhiro Yasutomi <<a href="mailto:nobuhiro.yasutomi@nifty.ne.jp">nobuhiro.yasut
 MySite Users<br/>
 <a href="http://mysite.ddo.jp/">http://mysite.ddo.jp/</a>
 </address>
-$Id: help.html,v 1.3 2003/12/10 11:37:33 nobu Exp $
+$Id: help.html,v 1.4 2003/12/11 04:38:10 nobu Exp $
 </body>
 </html>

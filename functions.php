@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.5 2003/12/10 11:37:33 nobu Exp $
+// $Id: functions.php,v 1.6 2003/12/11 04:38:10 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -83,8 +83,8 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
 	$ctext = "";
     }
     return "<a href='$url'$alt $attr class='trtitle'>$title</a>$add".
-	"<div style='font-size: small;' class='trtext'>$ctext</div>".
-	"<div style='font-size: xx-small;' class='trinfo'>".
+	"<div class='trtext'>$ctext</div>".
+	"<div class='trinfo'>".
 	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
 		_TB_REF_MDATE." $mdate]<br/>"._TB_REF_URL.
 	" <a href='$url'>".myurldecode($url)."</a></div>";
