@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.3 2003/12/02 03:52:09 nobu Exp $
+// $Id: refpage.php,v 1.4 2003/12/02 10:33:23 nobu Exp $
 function list_to_regexp($l) {
     $l = trim($l);
     if ($l == '') return '';
@@ -149,8 +149,8 @@ function b_trackback_log_show($options) {
 		if (strlen($title)>$l) $title=$substr($title,0,$l,_CHARSET)."..";
 		$body .= "<a href='$url'>$title</a> ($nref)<br/>\n";
 	    }
-	    $body .= "<div style='text-align: right'><a href='".XOOPS_URL."/modules/trackback/index.php?id=$tid'>"._MB_TRACKBACK_MORE."</a></div>\n";
 	    if ($nn>$options[0]) $body .= "<div style='text-align: center;'>:</div>\n";
+	    $body .= "<div style='text-align: right'><a href='".XOOPS_URL."/modules/trackback/index.php?id=$tid'>"._MB_TRACKBACK_MORE."</a></div>\n";
 	}
     }
     if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
