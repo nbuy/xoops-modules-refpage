@@ -1,5 +1,5 @@
 <?php
-//error_reporting(E_ALL);
+// $Id: refpage.php,v 1.2 2003/11/20 03:59:11 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB;
 
