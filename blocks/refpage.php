@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.8 2003/12/09 07:15:38 nobu Exp $
+// $Id: refpage.php,v 1.9 2004/10/02 14:42:32 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
     $moddir = 'trackback';
@@ -117,7 +117,8 @@ function b_trackback_log_show($options) {
     $block['title'] = _MB_TRACKBACK_TITLE;
     $body = "";
     if ($tid) {
-	$result = $xoopsDB->query("SELECT nref, ref_url, title FROM $tbr WHERE track_from=$tid AND linked=1 ORDER BY nref DESC");
+	$cond = "track_from=$tid AND linked=1 AND nref>=".$trackConfig['threshold'];
+	$result = $xoopsDB->query($sql="SELECT SUM(nref), MIN(ref_url), title FROM $tbr WHERE $cond GROUP BY title ORDER BY nref DESC");
 	$nn = $xoopsDB->getRowsNum($result);
 	if ($nn) {
 	    $n=$options[0];
@@ -204,7 +205,7 @@ function trackback_get_details($ref, $uri) {
  
     if ($page) {
 	if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
-	    $page = mb_convert_encoding($page, _CHARSET, "EUC-JP,UTF-8,Shift_JIS,JIS");
+	    $page = mb_convert_encoding($page, _CHARSET, "ISO-2022-JP,JIS,EUC-JP,UTF-8,Shift_JIS");
 	}
 	if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
 	    $title = $d[1];
@@ -223,10 +224,13 @@ function trackback_get_details($ref, $uri) {
 	}
 	if ($linked) {
 	    // cut out text from orign page
+	    function strip_string($s) {
+		return preg_replace('/\s+/', ' ', urldecode(strip_tags($s)));
+	    }
 	    $l = min($trackConfig['ctext_len'],255);
-	    $pre = ltrim(preg_replace('/\s+/', ' ', strip_tags($F[0])));
+	    $pre = ltrim(strip_string($F[0]));
 	    list($a, $post)=preg_split('/<\/a>/i', $F[1], 2);
-	    $post = rtrim(preg_replace('/\s+/', ' ', strip_tags($post)));
+	    $post = rtrim(strip_string($post));
 	    $m = intval($l/2);
 	    $ctext=mysubstr($pre, max(strlen($pre)-$m+1,0),$m)."<u>".strip_tags($a)."</u>";
 	    $m = $l-strlen($ctext);

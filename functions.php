@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.6 2003/12/11 04:38:10 nobu Exp $
+// $Id: functions.php,v 1.7 2004/10/02 14:42:15 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -11,7 +11,7 @@ function uri_to_name($uri) {
     if (preg_match($reg_mod, $uri, $d)) {
 	// module pages
 	$mod = XoopsModule::getByDirname($d[1]);
-	$name = isset($mod)?$mod->name():$d[1];
+	$name = is_object($mod)?$mod->name():$d[1];
 	$rest = myurldecode(preg_replace($reg_mod, '', $uri));
 	$rest = str_replace("index.php?","",$rest);
 	return $name.($rest==""?"":" - ").$rest;
@@ -23,13 +23,13 @@ function strim($s, $l=50) {
     if (strlen($s)<$l) return $s;
     $h = intval(($l-3)/2);
     $t = strlen($s)-$h+3;
-    return htmlspecialchars(mysubstr($s,0,$h)."...".mysubstr($s,$t));
+    return htmlspecialchars(mysubstr($s,0,$h)._TB_LEADER.mysubstr($s,$t));
 }
 
 function myurldecode($url) {
     $url = rawurldecode($url);
     if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
-	$url = mb_convert_encoding($url, _CHARSET, "EUC-JP,UTF-8,Shift_JIS,JIS");
+	$url = @mb_convert_encoding($url, _CHARSET, "ISO-2022-JP,JIS,EUC-JP,UTF-8,SJIS");
     }
     return $url;
 }
@@ -48,11 +48,22 @@ function make_page_index($title, $max, $cur, $format, $asis=" <b>[%d]</b>") {
     $npg = intval(($max-1)/$trackConfig['list_max'])+1;
     if ($npg<2) $npg=1;
     $result = "<div class='pgindex'>$title: ";
-    for ($i=1; $i<=$npg;$i++) {
+    $side = 2;
+    if ($cur > $side+2) {
+	$result .= sprintf($format, 1, 1)." "._TB_LEADER." ";
+	$start = $cur-$side;
+    } else {
+	$start = 1;
+    }
+    for ($i=$start; $i<=$npg;$i++) {
 	if ($i==$cur) {
 	    $result .= sprintf($asis, $i);
 	} else {
 	    $result .= sprintf($format, $i, $i);
+	    if ($i>=$cur+$side && $i<=$npg-$side) {
+		$result .= " "._TB_LEADER." ".sprintf($format, $npg, $npg);
+		break;
+	    }
 	}
     }
     $result .= "</div>";
@@ -65,10 +76,20 @@ function crlf2nl($s) {
 }
 
 function make_track_item($data, $add="", $attr="target='_blank'") {
+    global $trackConfig;
     $cdate = formatTimestamp($data['since'], "m");
     $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
     $url = $data['ref_url'];
     $nref = $data['nref'];
+    $nurl = "";
+    if (isset($data['refs'])) {
+	$nurl = _TB_REF_NURL.": ".$data['n'];
+	$refn = $data["refn"];
+	foreach ($data["refs"] as $url) {
+	    $nurl .= " <a href='$url'>[".array_shift($refn)."]</a>";
+	}
+	$nurl = "<div class='trinfo'>$nurl</div>";
+    }
     $title = $data['title'];
     $len = max($trackConfig['title_len'],255);
     $alt = "";
@@ -78,7 +99,7 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
 	$title=mysubstr($title, 0, $len-2)."..";
     }
     if ($data['context'] != '') {
-	$ctext = "...".preg_replace('/<u>/', "<u class='anc'>", $data['context'])."...";
+	$ctext = _TB_LEADER.preg_replace('/<u>/', "<u class='anc'>", $data['context'])._TB_LEADER;
     } else {
 	$ctext = "";
     }
@@ -87,7 +108,8 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
 	"<div class='trinfo'>".
 	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
 		_TB_REF_MDATE." $mdate]<br/>"._TB_REF_URL.
-	" <a href='$url'>".myurldecode($url)."</a></div>";
+	" <a href='$url'>".myurldecode($url)."</a></div>".
+	$nurl;
 }
 
 $tags = preg_match("/^XOOPS 1\\./",XOOPS_VERSION)?array("bg1","bg3"):array("even","odd");
