@@ -16,6 +16,9 @@ define("_TB_REF_COUNT","Count");
 define("_TB_REF_CDATE","First access");
 define("_TB_REF_MDATE","Last access");
 define("_TB_REF_URL","origin");
+define("_TB_REF_NURL","URLs");
 define("_TB_TOPPAGE", "Top Page");
 define("_TB_WAIT_UPDATE", "Waiting Update");
+define("_TB_LEADER", "...");
+
 ?>

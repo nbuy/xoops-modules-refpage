@@ -12,6 +12,7 @@ define("_AM_TRACK_LIST_MAX", "Number of items in a page");
 define("_AM_TRACK_TITLELEN", "Title string length (..255)");
 define("_AM_TRACK_CTEXTLEN", "Text around link from origin page (..255)");
 define("_AM_TRACK_EXPIREDAY", "Re-checking until last access over in this days");
+define("_AM_TRACK_THRESHOLD", "valid access threshold");
 define("_AM_TRACK_NODATA", "No tracking DATA");
 define("_AM_DONT", "Don't");
 define("_AM_DO", "Do it");
