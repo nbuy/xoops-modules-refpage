@@ -1,6 +1,6 @@
 <?php
 $modversion['name'] = _MI_TRACKBACK_NAME;
-$modversion['version'] = 0.7;
+$modversion['version'] = 0.8;
 $modversion['description'] = _MI_TRACKBACK_DESC;
 $modversion['author'] = "Nobuhiro Yasutomi ( http://mysite.ddo.jp/ )";
 $modversion['credits'] = "Nobuhiro Yasutomi";
