@@ -1,6 +1,6 @@
 <?php
 $modversion['name'] = _MI_TRACKBACK_NAME;
-$modversion['version'] = 0.5;
+$modversion['version'] = 0.6;
 $modversion['description'] = _MI_TRACKBACK_DESC;
 $modversion['author'] = "Nobuhiro Yasutomi ( http://mysite.ddo.jp/ )";
 $modversion['credits'] = "Nobuhiro Yasutomi";
@@ -33,7 +33,7 @@ $modversion['blocks'][1]['description'] = "Logging trackback and show it";
 $modversion['blocks'][1]['show_func'] = "b_trackback_log_show";
 $modversion['blocks'][1]['edit_func'] = "b_trackback_log_edit";
 // Show Referer|Lists|Strict Check
-$modversion['blocks'][1]['options'] = "8|20";
+$modversion['blocks'][1]['options'] = "8|18";
 
 // Menu
 $modversion['hasMain'] = 1;

@@ -1,13 +1,15 @@
 <?php
-// $Id: refpage.php,v 1.6 2003/12/03 11:50:12 nobu Exp $
+// $Id: refpage.php,v 1.7 2003/12/04 17:24:16 nobu Exp $
 function b_trackback_log_show($options) {
-    global $xoopsDB, $trackConfig;
+    global $xoopsDB, $trackConfig, $xoopsUser;
+    $moddir = 'trackback';
 
     // ** trackback recoding **
 
     $ref = isset($_SERVER["HTTP_REFERER"])?$_SERVER["HTTP_REFERER"]:"";
     $uri = $_SERVER["REQUEST_URI"];
     $uri = preg_replace('/\/index.php$/', '/', $uri);
+    $uri = preg_replace('/&?PHPSESSID=[^&]*/', '', $uri);
     $uriq= addslashes($uri);
     $now = time();
 
@@ -36,9 +38,9 @@ function b_trackback_log_show($options) {
     if ($disable) return $block; // disable in this page
 
     if (function_exists("getCache")) {	// for local hacks
-	eval(getCache("trackback/config.php"));
+	eval(getCache("$moddir/config.php"));
     } else {
-	include_once XOOPS_ROOT_PATH."/modules/trackback/cache/config.php";
+	include_once XOOPS_ROOT_PATH."/modules/$moddir/cache/config.php";
     }
 
     if ($tid && $ref!="") {
@@ -62,22 +64,24 @@ function b_trackback_log_show($options) {
 		$xoopsDB->queryF("UPDATE $log SET atime=$now WHERE log_id=$lid");
 	    } else {
 		if ($exreg!='' && preg_match($exreg, $ref)) {
-		    // No check and No link
+		    $checked = 1;	// No link without check
 		} elseif ($inreg!='' && preg_match($inreg, $ref)) {
-		    $linked = 1;	// link accepted
+		    $checked = 1;
+		    $linked = 1;	// Link without check
 		} elseif ($trackConfig['auto_check']) {
+		    // get fail or expire get text
 		    if (!$checked ||
 			($now-$mtime) > $trackConfig['expire']*24*3600) {
 			list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
-			if ($checked) {
+			if ($checked) {	// keep old value when fail to get.
 			    $title=addslashes($title);
 			    $ctext=addslashes($ctext);
-			    $xoopsDB->queryF("UPDATE $tbr SET checked=$checked, linked=$linked, title='$title', context='$ctext', mtime='$now' WHERE ref_id=$rid");
+			    $xoopsDB->queryF("UPDATE $tbr SET checked=$checked, linked=$linked, title='$title', context='$ctext' WHERE ref_id=$rid");
 			}
 		    }
 		}
 
-		$xoopsDB->queryF("UPDATE $tbr SET nref=nref+1 WHERE ref_id=$rid");
+		$xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, mtime='$now' WHERE ref_id=$rid");
 		$refno++;
 		$xoopsDB->queryF("INSERT INTO $log(atime, tfrom, rfrom, ip) VALUES($now, $tid, $rid, '$ip')");
 	    }
@@ -89,14 +93,15 @@ function b_trackback_log_show($options) {
 	    $title = '';
 	    $ctext = '';
 	    if ($exreg!='' && preg_match($exreg, $ref)) {
-		// No check and No link
+		$checked = 1;	// No link without check
 	    } elseif ($inreg!='' && preg_match($inreg, $ref)) {
-		$linked = 1;	// link accepted
+		$checked = 1;
+		$linked = 1;	// Link without check
 	    } elseif ($trackConfig['auto_check']) {
 		list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
+		$title=addslashes($title);
+		$ctext=addslashes($ctext);
 	    }
-	    $title=addslashes($title);
-	    $ctext=addslashes($ctext);
 	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title='$title', context='$ctext', mtime='$now' WHERE track_from=$tid AND ref_url='$refq'");
 	    $result = $xoopsDB->query("SELECT ref_id FROM $tbr WHERE track_from=$tid AND ref_url='$refq'");
 	    list($rid) = $xoopsDB->fetchRow($result);
@@ -121,11 +126,25 @@ function b_trackback_log_show($options) {
 		if ($title=="") {
 		    $title = preg_replace('/\/.*$/', '', preg_replace('/^https?:\/\//', '', $url));
 		}
-		if (strlen($title)>$l) $title=mysubstr($title, 0, $l)."..";
-		$body .= "<a href='$url'>$title</a> ($nref)<br/>\n";
+	        $alt = "";
+		if (strlen($title)>$l) {
+		    $alt = " title='$title'";
+		    $title=mysubstr($title, 0, $l)."..";
+		}
+		$body .= "<a href='$url'$alt target='_blank'>$title</a> ($nref)<br/>\n";
 	    }
-	    if ($nn>$options[0]) $body .= "<div style='text-align: center;'>:</div>\n";
-	    $body .= "<div style='text-align: right'><a href='".XOOPS_URL."/modules/trackback/index.php?id=$tid'>"._MB_TRACKBACK_MORE."</a></div>\n";
+	    $nn -= $options[0];
+	    if ($nn>0) {
+		$body .= "<div style='text-align: center;'>".sprintf(_MB_TRACKBACK_REST, $nn)."</div>\n";
+	    }
+	    $mod = XoopsModule::getByDirname($moddir);
+	    if ( (!empty($xoopsUser) &&
+		  XoopsGroup::checkRight("module", $mod->mid(), $xoopsUser->groups())) ||
+		XoopsGroup::checkRight("module", $mod->mid(), 0) ) {
+		$body .= "<div style='text-align: right'><a href='".XOOPS_URL.
+		    "/modules/$moddir/index.php?id=$tid'>".
+		    _MB_TRACKBACK_MORE."</a></div>\n";
+	    }
 	}
     }
     if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
@@ -141,7 +160,7 @@ function b_trackback_log_edit($options) {
 function list_to_regexp($l) {
     $l = trim($l);
     if ($l == '') return '';
-    return '/^https?:\/\/('.preg_replace(array('/\n*$/', '/\r?\n(\r?\n)+/','/\r?\n/', '/\./','/\*/', '/\//'),array('', "\n", '|', '\.', '.*', '\/'), $l).')/';
+    return '/^https?:\/\/('.preg_replace(array('/\n*$/', '/\n\n+/','/\r?\n/', '/\./','/\*/', '/\//'),array('', "\n", '|', '\.', '.*', '\/'), $l).')/';
 }
 
 //
@@ -149,32 +168,49 @@ function list_to_regexp($l) {
 //
 
 // substrings with support multibytes (--with-mbstring)
-function mysubstr($s, $f, $l) {
-    if (XOOPS_USE_MULTIBYTES && function_exists("mb_strcut")) {
-	return mb_strcut($s, $f, $l, _CHARSET);
-    } else {
-	return substr($s, $f, $l);
+// duplicate in ../function.php - umm..
+if (!function_exists("mysubstr")) {
+    function mysubstr($s, $f, $l) {
+	if (XOOPS_USE_MULTIBYTES && function_exists("mb_strcut")) {
+	    return mb_strcut($s, $f, $l, _CHARSET);
+	} else {
+	    return substr($s, $f, $l);
+	}
     }
 }
 
 function trackback_get_details($ref, $uri) {
     global $trackConfig;
-    $fp = @fopen($ref, "r");
     $linked = 0;
     $checked = 0;
     $title = '';
     $ctext = '';
-    if ($fp) {
-	$page = '';
-	while ($ln = fgets($fp)) {
-	    $page .= $ln;
-	}
+
+    // includes Snoopy class for remote file access
+    if (file_exists(XOOPS_ROOT_PATH."/class/snoopy.class.php")){
+	//xoops 1.3
+	require_once(XOOPS_ROOT_PATH."/class/snoopy.class.php");
+    } else {
+	//xoops 2
+	require_once(XOOPS_ROOT_PATH."/class/snoopy.php");
+    }
+    $snoopy = new Snoopy;
+    //TIMEOUT
+    $snoopy->read_timeout = 10;
+    //URL
+    $snoopy->fetch($ref);
+    //GET DATA
+    $page = $snoopy->results;
+
+    if($snoopy->error) $page = "";
+ 
+    if ($page) {
 	if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
 	    $page = mb_convert_encoding($page, _CHARSET, "JIS,UTF-8,Shift_JIS,EUC-JP");
 	}
 	if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
 	    $title = $d[1];
-	    $len = max($trackConfig['title_len'],255);
+	    $len = 255;
 	    if (strlen($title)>$len) $title=mysubstr($title, 0, $len-2)."..";
 	    $page = preg_replace("/<title>(.*)<\/title>/i", "", $page);
 	}
