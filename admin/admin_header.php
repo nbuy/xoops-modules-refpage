@@ -14,17 +14,18 @@ if ( $xoopsUser ) {
 	redirect_header($xoopsConfig['xoops_url']."/",3,_NOPERM);
 	exit();
 }
-if ( file_exists("../language/".$xoopsConfig['language']."/admin.php") ) {
-	include("../language/".$xoopsConfig['language']."/admin.php");
-} else {
-	include("../language/english/admin.php");
-}
-if ( file_exists("../language/".$xoopsConfig['language']."/main.php") ) {
-	include("../language/".$xoopsConfig['language']."/main.php");
-} else {
-	include("../language/english/admin.php");
-}
 $modbase = XOOPS_ROOT_PATH."/modules/".$xoopsModule->dirname();
+function lang_include($res) {
+    global $xoopsConfig, $modbase;
+    $res_path = "$modbase/language/".$xoopsConfig['language']."$lang/$res";
+    if ( file_exists($res_path) ) include_once($res_path);
+    else include_once("$modbase/language/english/$res");
+}
+
+lang_include("admin.php");
+lang_include("main.php");
+lang_include("modinfo.php");
+
 if (function_exists("getCache")) {
     eval(getCache($xoopsModule->dirname()."/config.php"));
 } else {

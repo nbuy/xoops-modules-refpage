@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.10 2004/10/24 15:29:45 nobu Exp $
+// $Id: refpage.php,v 1.11 2004/11/03 16:04:20 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
     $moddir = 'trackback';
@@ -21,7 +21,7 @@ function b_trackback_log_show($options) {
     // referere self site, 2nd will be fake referer (Robots?).
     if (preg_match("/^".preg_quote(XOOPS_URL,"/")."\//", $ref)) $ref="";
     elseif (preg_match("/^".preg_quote(XOOPS_URL,"/")."\$/", $ref)) $ref="";
-    elseif (!preg_match("/^https?:\/\/i", $ref)) $ref=""; // no http (fake?)
+    elseif (!preg_match("/^https?:\/\//i", $ref)) $ref=""; // no http (fake?)
     if ($xoopsDB->getRowsNum($result)) {
 	list($tid, $disable) = $xoopsDB->fetchRow($result);
     } else {
@@ -119,7 +119,7 @@ function b_trackback_log_show($options) {
     $body = "";
     if ($tid) {
 	$cond = "track_from=$tid AND linked=1 AND nref>=".$trackConfig['threshold'];
-	$result = $xoopsDB->query($sql="SELECT SUM(nref), MIN(ref_url), title FROM $tbr WHERE $cond GROUP BY title ORDER BY nref DESC");
+	$result = $xoopsDB->query($sql="SELECT SUM(nref) nref, MIN(ref_url), title FROM $tbr WHERE $cond GROUP BY title ORDER BY nref DESC");
 	$nn = $xoopsDB->getRowsNum($result);
 	if ($nn) {
 	    $n=$options[0];

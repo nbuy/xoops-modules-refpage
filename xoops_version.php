@@ -1,8 +1,7 @@
 <?php
-// $Id: xoops_version.php,v 1.10 2004/10/24 15:26:30 nobu Exp $
+// $Id: xoops_version.php,v 1.11 2004/11/03 16:04:20 nobu Exp $
 $modversion['name'] = _MI_TRACKBACK_NAME;
-$modversion['version'] = 1.1
-;
+$modversion['version'] = "1.1.1";
 $modversion['description'] = _MI_TRACKBACK_DESC;
 $modversion['author'] = "Nobuhiro Yasutomi ( http://mysite.ddo.jp/ )";
 $modversion['credits'] = "Nobuhiro Yasutomi";
