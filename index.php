@@ -42,11 +42,11 @@ if ( empty($track_id) ) {
     $result = $xoopsDB->query("SELECT track_id, track_uri, count(ref_id) FROM $tbl,$tbr WHERE track_id=track_from AND disable=0 AND linked=1 GROUP BY track_from ORDER BY track_id");
     if ($xoopsDB->getRowsNum($result)) {
 	echo "<table $tblstyle>\n";
-	echo "<tr class='bg1'><th>"._TB_TRACKPAGE."</th><th>"._TB_REF_SOURCE."</th><th><br/></th></tr>\n";
+	echo "<tr class='bg1'><th>"._TB_TRACKPAGE."</th><th>"._TB_REF_SOURCE."</th></tr>\n";
 	$nc = 1;
 	while (list($tid, $uri, $refs)=$xoopsDB->fetchRow($result)) {
 	    $bg = $tags[($nc++ % 2)];
-	    echo "<tr class='$bg'><td><a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td><td><a href='$uri'>"._TB_TRACKED."</a></td></tr>\n";
+	    echo "<tr class='$bg'><td><a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td></tr>\n";
 	}
 	echo "</table>\n";
     }
@@ -64,7 +64,7 @@ if ( empty($track_id) ) {
     OpenTable();
     echo "<h4>"._MI_TRACKBACK_NAME."</h4>";
     $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$track_id AND linked=1 ORDER BY nref DESC");
-    echo "<p>"._TB_TRACKPAGE.": <a href='$uri'>".uri_to_name($uri)."</a></p>\n";
+    echo "<p>"._TB_TRACKPAGE.": <a href='index.php'>"._TB_INDEX."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a></p>\n";
     if ($xoopsDB->getRowsNum($result)) {
 	echo "<table $tblstyle>\n";
 	$nc = 1;

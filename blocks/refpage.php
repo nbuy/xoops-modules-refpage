@@ -1,15 +1,7 @@
 <?php
-// $Id: refpage.php,v 1.4 2003/12/02 10:33:23 nobu Exp $
-function list_to_regexp($l) {
-    $l = trim($l);
-    if ($l == '') return '';
-    return '/^https?:\/\/('.preg_replace(array('/\n*$/', '/\r?\n(\r?\n)+/','/\r?\n/', '/\./','/\*/', '/\//'),array('', "\n", '|', '\.', '.*', '\/'), $l).')/';
-}
-
+// $Id: refpage.php,v 1.5 2003/12/03 09:20:24 nobu Exp $
 function b_trackback_log_show($options) {
-    global $xoopsDB;
-
-    $block = array();
+    global $xoopsDB, $trackConfig;
 
     // ** trackback recoding **
 
@@ -40,24 +32,33 @@ function b_trackback_log_show($options) {
 	}
     }
 
+    $block = array();
     if ($disable) return $block; // disable in this page
 
-    if (function_exists("getCache")) {
+    if (function_exists("getCache")) {	// for local hacks
 	eval(getCache("trackback/config.php"));
     } else {
 	include_once XOOPS_ROOT_PATH."/modules/trackback/cache/config.php";
     }
 
-    $substr = function_exists("mb_strcut")?"mb_strcut":"substr";
-
     if ($tid && $ref!="") {
+	if ($trackConfig['strip_args']!="" && preg_match('/\?/', $ref)) {
+	    $F = preg_split('/\?/', $ref, 2);
+	    $regrm = '/\&?('.preg_replace(array('/\n*$/', '/\r?\n(\r?\n)+/','/\r?\n/'),array('', "\n", '|'), $trackConfig['strip_args']).')/';
+	    $args = preg_replace($regrm, "", $F[1]);
+	    $ref = $F[0].($args==""?"":"?".$args);
+	}
 	$refq= addslashes($ref);
-	$result = $xoopsDB->query("SELECT ref_id,nref FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
+	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
 	$log = $xoopsDB->prefix("trackback_log");
+	$exreg = list_to_regexp($trackConfig['exclude']);
+	$inreg = list_to_regexp($trackConfig['include']);
+	$checked = 0;
+	$linked = 0;
 	if ($xoopsDB->getRowsNum($result)) {
 	    // already registered
-	    list($rid, $refno) = $xoopsDB->fetchRow($result);
+	    list($rid, $refno, $mtime, $checked) = $xoopsDB->fetchRow($result);
 	    // check valid reference. (is it not reload?)
 	    // remove expire entry
 	    $xoopsDB->queryF("DELETE FROM $log WHERE atime<".($now-3600));
@@ -66,6 +67,22 @@ function b_trackback_log_show($options) {
 		list($lid) = $xoopsDB->fetchRow($result);
 		$xoopsDB->queryF("UPDATE $log SET atime=$now WHERE log_id=$lid");
 	    } else {
+		if ($exreg!='' && preg_match($exreg, $ref)) {
+		    // No check and No link
+		} elseif ($inreg!='' && preg_match($inreg, $ref)) {
+		    $linked = 1;	// link accepted
+		} elseif ($trackConfig['auto_check']) {
+		    if (!$checked ||
+			($now-$mtime) > $trackConfig['expire']*24*3600) {
+			list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
+			if ($checked) {
+			    $title=addslashes($title);
+			    $ctext=addslashes($ctext);
+			    $xoopsDB->queryF("UPDATE $tbr SET checked=$checked, linked=$linked, title='$title', context='$ctext', mtime='$now' WHERE ref_id=$rid");
+			}
+		    }
+		}
+
 		$xoopsDB->queryF("UPDATE $tbr SET nref=nref+1 WHERE ref_id=$rid");
 		$refno++;
 		$xoopsDB->queryF("INSERT INTO $log(atime, tfrom, rfrom, ip) VALUES($now, $tid, $rid, '$ip')");
@@ -75,10 +92,6 @@ function b_trackback_log_show($options) {
 	    $xoopsDB->queryF("INSERT INTO $tbr(since,track_from,ref_url)".
 			     " VALUES($now, $tid, '$refq')");
 	    // check origin page, there is link exist?
-	    $exreg = list_to_regexp($trackConfig['exclude']);
-	    $inreg = list_to_regexp($trackConfig['include']);
-	    $checked = 0;
-	    $linked = 0;
 	    $title = '';
 	    $ctext = '';
 	    if ($exreg!='' && preg_match($exreg, $ref)) {
@@ -86,43 +99,11 @@ function b_trackback_log_show($options) {
 	    } elseif ($inreg!='' && preg_match($inreg, $ref)) {
 		$linked = 1;	// link accepted
 	    } elseif ($trackConfig['auto_check']) {
-		$checked = 1;	// accepted
-		$fp = @fopen($ref, "r");
-		$page = '';
-		if ($fp) {
-		    while ($ln = fgets($fp)) {
-			$page .= $ln;
-		    }
-		    if ($substr == "mb_strcut") {
-			$page = mb_convert_encoding($page, _CHARSET, "JIS,UTF-8,Shift_JIS,EUC-JP");
-		    }
-		    if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
-			$title = $d[1];
-			$page = preg_replace("/<title>(.*)<\/title>/i", "", $page);
-		    }
-		    $anc = "/<a\\s+href=[\"']?".preg_quote(XOOPS_URL.$uri,"/")."[^>]*>/i";
-		    $relax = "/<a\\s+href=[\"']?".preg_quote(XOOPS_URL,"/")."[^>]*>/i";
-		    if (preg_match($anc, $page)) {
-			$F = preg_split($anc, $page, 2);
-			$linked = 1;
-		    } elseif (preg_match($relax, $page)) {
-			$F = preg_split($relax, $page, 2);
-			$linked = 1;
-		    }
-		    if ($linked) {
-			$l = 50; // string length
-			$pre = ltrim(preg_replace('/\s+/', ' ', strip_tags($F[0])));
-			list($a, $p)=preg_split('/<\/a>/i', $F[1], 2);
-			$post = rtrim(preg_replace('/\s+/', ' ', strip_tags($p)));
-			$ctext=$substr($pre, max(strlen($pre)-$l,0),$l, _CHARSET).
-			    "<u>".strip_tags($a)."</u>".
-			    $substr($post, 0, min(strlen($post),$l), _CHARSET);
-		    }
-		}
+		list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
 	    }
 	    $title=addslashes($title);
 	    $ctext=addslashes($ctext);
-	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title='$title', context='$ctext' WHERE track_from=$tid AND ref_url='$refq'");
+	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title='$title', context='$ctext', mtime='$now' WHERE track_from=$tid AND ref_url='$refq'");
 	    $result = $xoopsDB->query("SELECT ref_id FROM $tbr WHERE track_from=$tid AND ref_url='$refq'");
 	    list($rid) = $xoopsDB->fetchRow($result);
 	    $xoopsDB->queryF("INSERT INTO $log(atime, tfrom, rfrom, ip) VALUES($now, $tid, $rid, '$ip')");
@@ -146,20 +127,85 @@ function b_trackback_log_show($options) {
 		if ($title=="") {
 		    $title = preg_replace('/\/.*$/', '', preg_replace('/^https?:\/\//', '', $url));
 		}
-		if (strlen($title)>$l) $title=$substr($title,0,$l,_CHARSET)."..";
+		if (strlen($title)>$l) $title=mysubstr($title, 0, $l)."..";
 		$body .= "<a href='$url'>$title</a> ($nref)<br/>\n";
 	    }
 	    if ($nn>$options[0]) $body .= "<div style='text-align: center;'>:</div>\n";
 	    $body .= "<div style='text-align: right'><a href='".XOOPS_URL."/modules/trackback/index.php?id=$tid'>"._MB_TRACKBACK_MORE."</a></div>\n";
 	}
     }
-    if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
+    if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
     $block['content'] = $body;
     return $block;
 }
 
 function b_trackback_log_edit($options) {
     return _MB_TRACKBACK_MAX."&nbsp;<input name='options[0]' value='".$options[0]."' /><br />\n".
-	_MB_TRACKBACK_MAX."&nbsp;<input name='options[1]' value='".$options[1]."' />\n";
+	_MB_TRACKBACK_LEN."&nbsp;<input name='options[1]' value='".$options[1]."' />\n";
+}
+
+function list_to_regexp($l) {
+    $l = trim($l);
+    if ($l == '') return '';
+    return '/^https?:\/\/('.preg_replace(array('/\n*$/', '/\r?\n(\r?\n)+/','/\r?\n/', '/\./','/\*/', '/\//'),array('', "\n", '|', '\.', '.*', '\/'), $l).')/';
+}
+
+//
+// block local functions
+//
+
+// substrings with support multibytes (--with-mbstring)
+function mysubstr($s, $f, $l) {
+    if (XOOPS_USE_MULTIBYTES && function_exists("mb_strcut")) {
+	return mb_strcut($s, $f, $l, _CHARSET);
+    } else {
+	return substr($s, $f, $l);
+    }
+}
+
+function trackback_get_details($ref, $uri) {
+    global $trackConfig;
+    $fp = @fopen($ref, "r");
+    $linked = 0;
+    $checked = 0;
+    $title = '';
+    $ctext = '';
+    if ($fp) {
+	$page = '';
+	while ($ln = fgets($fp)) {
+	    $page .= $ln;
+	}
+	if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
+	    $page = mb_convert_encoding($page, _CHARSET, "JIS,UTF-8,Shift_JIS,EUC-JP");
+	}
+	if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
+	    $title = $d[1];
+	    $len = max($trackConfig['title_len'],255);
+	    if (strlen($title)>$len) $title=mysubstr($title, 0, $len-2)."..";
+	    $page = preg_replace("/<title>(.*)<\/title>/i", "", $page);
+	}
+	$anc = "/<a\\s+href=([\"'])?".preg_quote(XOOPS_URL.$uri,"/")."\\1(>|\s[^>]*>)/i";
+	$root = "/<a\\s+href=([\"']?)".preg_quote(XOOPS_URL."/","/")."\\1(>|\s[^>]*>)/i";
+	if (preg_match($anc, $page)) {
+	    $F = preg_split($anc, $page, 2);
+	    $linked = 1;
+	} elseif (preg_match($root, $page)) {
+	    $F = preg_split($root, $page, 2);
+	    $linked = 1;
+	}
+	if ($linked) {
+	    // cut out text from orign page
+	    $l = min($trackConfig['ctext_len'],255);
+	    $pre = ltrim(preg_replace('/\s+/', ' ', strip_tags($F[0])));
+	    list($a, $p)=preg_split('/<\/a>/i', $F[1], 2);
+	    $post = rtrim(preg_replace('/\s+/', ' ', strip_tags($p)));
+	    $m = intval($l/2);
+	    $ctext=mysubstr($pre, max(strlen($pre)-$m,0),$m)."<u>".strip_tags($a)."</u>";
+	    $m = $l-strlen($ctext);
+	    $ctext.=mysubstr($post, 0, min(strlen($post),$l));
+	}
+	if ($linked == 1 || strip_tags($page) != "") $checked=1;
+    }
+    return array($title, $ctext, $linked, $checked);
 }
 ?>

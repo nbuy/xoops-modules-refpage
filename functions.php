@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.1 2003/12/02 10:33:00 nobu Exp $
+// $Id: functions.php,v 1.2 2003/12/03 09:20:24 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -11,8 +11,9 @@ function uri_to_name($uri) {
     if (preg_match($reg_mod, $uri, $d)) {
 	// module pages
 	$mod = XoopsModule::getByDirname($d[1]);
-	$name = isset($mod->modinfo['name'])?$mod->modinfo['name']:$d[1];
-	$rest = preg_replace($reg_mod, '', $uri);
+	$name = isset($mod)?$mod->name():$d[1];
+	$rest = rawurldecode(preg_replace($reg_mod, '', $uri));
+	$rest = str_replace("index.php?","",$rest);
 	return $name.($rest==""?"":" - ").$rest;
     }
     return $uri;
