@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.5 2003/12/03 09:20:24 nobu Exp $
+// $Id: refpage.php,v 1.6 2003/12/03 11:50:12 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
 
@@ -42,12 +42,6 @@ function b_trackback_log_show($options) {
     }
 
     if ($tid && $ref!="") {
-	if ($trackConfig['strip_args']!="" && preg_match('/\?/', $ref)) {
-	    $F = preg_split('/\?/', $ref, 2);
-	    $regrm = '/\&?('.preg_replace(array('/\n*$/', '/\r?\n(\r?\n)+/','/\r?\n/'),array('', "\n", '|'), $trackConfig['strip_args']).')/';
-	    $args = preg_replace($regrm, "", $F[1]);
-	    $ref = $F[0].($args==""?"":"?".$args);
-	}
 	$refq= addslashes($ref);
 	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
@@ -134,7 +128,7 @@ function b_trackback_log_show($options) {
 	    $body .= "<div style='text-align: right'><a href='".XOOPS_URL."/modules/trackback/index.php?id=$tid'>"._MB_TRACKBACK_MORE."</a></div>\n";
 	}
     }
-    if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
+    if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
     $block['content'] = $body;
     return $block;
 }
@@ -197,12 +191,12 @@ function trackback_get_details($ref, $uri) {
 	    // cut out text from orign page
 	    $l = min($trackConfig['ctext_len'],255);
 	    $pre = ltrim(preg_replace('/\s+/', ' ', strip_tags($F[0])));
-	    list($a, $p)=preg_split('/<\/a>/i', $F[1], 2);
-	    $post = rtrim(preg_replace('/\s+/', ' ', strip_tags($p)));
+	    list($a, $post)=preg_split('/<\/a>/i', $F[1], 2);
+	    $post = rtrim(preg_replace('/\s+/', ' ', strip_tags($post)));
 	    $m = intval($l/2);
-	    $ctext=mysubstr($pre, max(strlen($pre)-$m,0),$m)."<u>".strip_tags($a)."</u>";
+	    $ctext=mysubstr($pre, max(strlen($pre)-$m+1,0),$m)."<u>".strip_tags($a)."</u>";
 	    $m = $l-strlen($ctext);
-	    $ctext.=mysubstr($post, 0, min(strlen($post),$l));
+	    $ctext.=mysubstr($post, 0, min(strlen($post),$m));
 	}
 	if ($linked == 1 || strip_tags($page) != "") $checked=1;
     }

@@ -222,8 +222,6 @@ if ( $op == "config" ) {
 	"<textarea name='exclude' rows='5' cols='60'>".htmlspecialchars($trackConfig['exclude'])."</textarea>\n".
 	"<p><b>"._AM_TRACK_INCLUDE."</b></p>".
 	"<textarea name='include' rows='5' cols='60'>".htmlspecialchars($trackConfig['include'])."</textarea>\n".
-	"<p><b>"._AM_TRACK_STRIP."</b></p>".
-	"<textarea name='stripargs' rows='5' cols='60'>".htmlspecialchars($trackConfig['strip_args'])."</textarea>\n".
 	"<input type='hidden' name='op' value='config_update' />\n".
 	"<p><input type='submit' value='"._SUBMIT."' /></p>\n".
 	"</form>\n";
@@ -237,12 +235,11 @@ if ( $op == "config_update" ) {
     //phpinfo(INFO_VARIABLES);
     $config="\$trackConfig['exclude']=\"".$HTTP_POST_VARS['exclude']."\";\n".
 	"\$trackConfig['include']=\"".$HTTP_POST_VARS['include']."\";\n".
-	"\$trackConfig['strip_args']=\"".$HTTP_POST_VARS['stripargs']."\";\n".
 	"\$trackConfig['auto_check']=".$HTTP_POST_VARS['autocheck'].";\n".
 	"\$trackConfig['block_hide']=".$HTTP_POST_VARS['blockhide'].";\n".
 	"\$trackConfig['title_len']=".$HTTP_POST_VARS['titlelen'].";\n".
 	"\$trackConfig['ctext_len']=".$HTTP_POST_VARS['ctextlen'].";\n".
-	"\$trackConfig['expire']=".$HTTP_POST_VARS['expireday'].";\n";
+	"\$trackConfig['expire']=".$HTTP_POST_VARS['expireday'].";";
     putCache($xoopsModule->dirname()."/config.php", $config);
     redirect_header("index.php?op=config",1,_AM_DBUPDATED);
     exit();
