@@ -1,5 +1,5 @@
 <?php
-// $Id: index.php,v 1.6 2003/12/10 09:49:50 nobu Exp $
+// $Id: index.php,v 1.7 2003/12/10 11:37:33 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -14,6 +14,7 @@ $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
 $myts =& MyTextSanitizer::getInstance();
 $tbl = $xoopsDB->prefix("trackback");
 $tbr = $xoopsDB->prefix("trackback_ref");
+$tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2' width='100%'";
 
 if ( $op == "list" ) {
     xoops_cp_header();
@@ -45,8 +46,8 @@ if ( $op == "list" ) {
 	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?page=%d$opt'>(%d)</a>");
 	echo $pctrl;
 	echo "<form action='index.php' method='post'>";
-	echo "<table class='bg2' cellspacing='1' border='0'>\n";
-	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_TRACKBACK_PAGE."</th><th>"._AM_REF_LINKS."</th></tr>\n";
+	echo "<table $tblstyle>\n";
+	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_TRACKBACK_PAGE."</th><th>"._AM_REF_SHOWS."</th><th>"._AM_REF_LINKS."</th></tr>\n";
 	$nc = 1;
 	
 	while (list($tid, $uri, $count, $nlink, $disable) = $xoopsDB->fetchRow($result)) {
@@ -54,7 +55,7 @@ if ( $op == "list" ) {
 	    echo "<tr class='$bg'>".
 		"<td style='text-align: center'><input type='checkbox' name='disable[$tid]' ".($disable?"checked":"")." /><input type='hidden' name='trid[$tid]' value='1' /></td>".
 		"<td><a href='index.php?op=edit&tid=$tid'>".uri_to_name($uri)."</a></td>".
-		"<td style='text-align: center'>$nlink / $count</td>".
+		"<td style='text-align: center'>$nlink</th><td style='text-align: center'>$count</td>".
 		"</tr>\n";
 	}
 	echo "</table>\n";
@@ -88,7 +89,7 @@ if ( $op == "edit" ) {
     echo $pctrl;
     if ($nrec) {
 	echo "<form action='index.php' method='post'>";
-	echo "<table class='bg2' cellspacing='1' border='0'>\n";
+	echo "<table $tblstyle>\n";
 	echo "<tr class='bg1'><th>"._AM_REF_URL."</th></tr>\n";
 	$nc = 1;
 	while ($data = $xoopsDB->fetchArray($result)) {
@@ -146,7 +147,7 @@ if ( $op == "check" ) {
     xoops_cp_header();
     OpenTable();
     echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_CHECK."</h4>";
-    $result = $xoopsDB->query("SELECT track_id,track_uri, ref_id,ref_url,title, context, nref, linked FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
+    $result = $xoopsDB->query("SELECT * FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
     if ($n) {
 	echo "<script>
@@ -165,8 +166,9 @@ function myCheckAll(formname, switchid, group) {
 </script>";
 	$allbox = "<input name='allbox' id='allbox' onclick='myCheckAll(\"refchk\", \"allbox\", \"check\");' type='checkbox' value='Check All' />";
 	echo "<form action='index.php' method='post' name='refchk'>";
-	echo "<table class='bg2' cellspacing='1' cellpadding='2' border='0'>\n";
-	echo "<tr class='bg1'><th>"._AM_TRACK_TARGET."</th><th>"._AM_REF_CHECKED."</th><th>"._AM_REF_URL."</th><th>"._AM_REF_COUNT."</th><th>"._AM_TRACK_SHOW."</th></tr>\n";
+	echo $allbox." "._AM_CHECKALL_CHECK;
+	echo "<table $tblstyle>\n";
+	echo "<tr class='bg1'><th nowrap>"._AM_REF_CHECKED."</th><th>"._AM_REF_URL."</th></tr>\n";
 	$nc = 1;
 	while ($data = $xoopsDB->fetchArray($result)) {
 	    $bg = $tags[($nc++ % 2)];
@@ -175,18 +177,18 @@ function myCheckAll(formname, switchid, group) {
 	    $rid = $data['ref_id'];
 	    $url = $data['ref_url'];
 	    $title = $data['title'];
+	    $uri = $data['track_uri'];
+	    $linkto = " "._TB_LINKTO." <a href='$uri'>".uri_to_name($uri)."</a>";
+	    $clickmark = "target='_blank' onclick='javascript:document.forms[\"refchk\"].elements[\"check[$rid]\"].checked=true;'";
 	    $mkl = $data['linked']?"checked":"";
-	    if ($title == '') $title = strim(myurldecode($url), $trackConfig['title_len']);
-	    echo "<tr class='$bg'>".
-		"<td><a href='$uri'>".uri_to_name($uri)."</a></td>".
-		"<td style='text-align: center'><input type='checkbox' name='check[$rid]' id='check' /></td>".
-		"<td><a href='$url' target='_blank' onclick='javascript:document.forms[\"refchk\"].elements[\"check[$rid]\"].checked=true;'>$title</a><div style='font-size: xx-small; text-align: left;'>".strim($url,80)."</div></td>".
-		"<td style='text-align: center'>".$data['nref']."</td>".
-		"<td style='text-align: center'><input type='checkbox' name='link[$rid]' $mkl /></td>".
-		"</tr>\n";
+	    $start++;
+	    echo "<tr class='$bg'><td style='text-align:center;'><input type='checkbox' name='check[$rid]' id='check' /></td>".
+		"<td>$start. ".
+		"<input type='checkbox' name='link[$rid]' $mkl />".
+		"<input type='hidden' name='refid[$rid]' value='ok' /> ".
+		make_track_item($data, $linkto, $clickmark)."</td></tr>\n";
 	}
 	echo "</table>\n";
-	echo $allbox." "._AM_CHECKALL_CHECK;
 	echo "<p><input type='hidden' name='op' value='check_update' />".
 	    "<input type='submit' value='"._SUBMIT."' /></p>".
 	    "</form>\n";

@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.4 2003/12/09 07:15:38 nobu Exp $
+// $Id: functions.php,v 1.5 2003/12/10 11:37:33 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -64,7 +64,7 @@ function crlf2nl($s) {
     return preg_replace("/\x0D\x0A|\x0D|\x0A/","\n", $s);
 }
 
-function make_track_item($data, $add="") {
+function make_track_item($data, $add="", $attr="target='_blank'") {
     $cdate = formatTimestamp($data['since'], "m");
     $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
     $url = $data['ref_url'];
@@ -82,7 +82,7 @@ function make_track_item($data, $add="") {
     } else {
 	$ctext = "";
     }
-    return "<a href='$url'$alt target='_blank' class='trtitle'>$title</a>$add".
+    return "<a href='$url'$alt $attr class='trtitle'>$title</a>$add".
 	"<div style='font-size: small;' class='trtext'>$ctext</div>".
 	"<div style='font-size: xx-small;' class='trinfo'>".
 	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
