@@ -235,13 +235,13 @@ if ( $op == "config" ) {
 if ( $op == "config_update" ) {
     //header('Content-Type: text/plain; Charset=EUC-JP');
     //phpinfo(INFO_VARIABLES);
-    $config="\$trackConfig['exclude']=\"".addslashes($HTTP_POST_VARS['exclude'])."\";\n".
-	"\$trackConfig['include']=\"".addslashes($HTTP_POST_VARS['include'])."\";\n".
-	"\$trackConfig['strip_args']=\"".addslashes($HTTP_POST_VARS['stripargs'])."\";\n".
+    $config="\$trackConfig['exclude']=\"".$HTTP_POST_VARS['exclude']."\";\n".
+	"\$trackConfig['include']=\"".$HTTP_POST_VARS['include']."\";\n".
+	"\$trackConfig['strip_args']=\"".$HTTP_POST_VARS['stripargs']."\";\n".
 	"\$trackConfig['auto_check']=".$HTTP_POST_VARS['autocheck'].";\n".
-	"\$trackConfig['block_hide']=".$HTTP_POST_VARS['blockhide'].";\n";
-	"\$trackConfig['title_len']=".$HTTP_POST_VARS['titlelen'].";\n";
-	"\$trackConfig['ctext_len']=".$HTTP_POST_VARS['ctextlen'].";\n";
+	"\$trackConfig['block_hide']=".$HTTP_POST_VARS['blockhide'].";\n".
+	"\$trackConfig['title_len']=".$HTTP_POST_VARS['titlelen'].";\n".
+	"\$trackConfig['ctext_len']=".$HTTP_POST_VARS['ctextlen'].";\n".
 	"\$trackConfig['expire']=".$HTTP_POST_VARS['expireday'].";\n";
     putCache($xoopsModule->dirname()."/config.php", $config);
     redirect_header("index.php?op=config",1,_AM_DBUPDATED);
