@@ -1,5 +1,6 @@
 <?php
-// $Id: index.php,v 1.7 2003/12/10 11:37:33 nobu Exp $
+// trackback module for XOOPS (admin side code)
+// $Id: index.php,v 1.8 2003/12/11 05:09:43 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
