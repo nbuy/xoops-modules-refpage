@@ -15,4 +15,5 @@ define("_MI_TRACKBACK_SMENU1","All of site");
 define("_MI_TRACKBACK_ADMENU1","Edit trackback info");
 define("_MI_TRACKBACK_ADMENU2","Check for origin");
 define("_MI_TRACKBACK_ADMENU3","Module Settings");
+define("_MI_TRACKBACK_ADMENU4","Delete expired");
 ?>
