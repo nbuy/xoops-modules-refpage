@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.8 2004/10/02 14:42:15 nobu Exp $
+// $Id: index.php,v 1.9 2004/10/24 15:26:30 nobu Exp $
 include("header.php");
 error_reporting(E_ALL);
 include_once "functions.php";
@@ -130,7 +130,7 @@ if ($track_id == "all") {
 	    $bg = $tags[($nc++ % 2)];
 	    $start++;
 	    if (!$detail && $data['n']>1) {	// url list
-		$rsub = $xoopsDB->query("SELECT nref, ref_url FROM $tbr WHERE $cond AND title='".addslashes($data['title'])."' ORDER BY nref DESC", 20);
+		$rsub = $xoopsDB->query("SELECT nref, ref_url, mtime FROM $tbr WHERE $cond AND title='".addslashes($data['title'])."' ORDER BY $order", 20);
 		$refs = array();
 		$refn = array();
 		while (list($nref, $url)=$xoopsDB->fetchRow($rsub)) {
@@ -139,6 +139,7 @@ if ($track_id == "all") {
 		}
 		$data["refs"] = $refs;
 		$data["refn"] = $refn;
+		$data["ref_url"] = $refs[0];
 	    }
 	    echo "<tr class='$bg'><td>$start. ".make_track_item($data)."</td></tr>\n";
 	}

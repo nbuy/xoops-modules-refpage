@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.7 2004/10/02 14:42:15 nobu Exp $
+// $Id: functions.php,v 1.8 2004/10/24 15:26:30 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -85,8 +85,8 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
     if (isset($data['refs'])) {
 	$nurl = _TB_REF_NURL.": ".$data['n'];
 	$refn = $data["refn"];
-	foreach ($data["refs"] as $url) {
-	    $nurl .= " <a href='$url'>[".array_shift($refn)."]</a>";
+	foreach ($data["refs"] as $ref) {
+	    $nurl .= " <a href='$ref'>[".array_shift($refn)."]</a>";
 	}
 	$nurl = "<div class='trinfo'>$nurl</div>";
     }
