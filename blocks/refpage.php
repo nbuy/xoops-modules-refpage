@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.9 2004/10/02 14:42:32 nobu Exp $
+// $Id: refpage.php,v 1.10 2004/10/24 15:29:45 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
     $moddir = 'trackback';
@@ -21,6 +21,7 @@ function b_trackback_log_show($options) {
     // referere self site, 2nd will be fake referer (Robots?).
     if (preg_match("/^".preg_quote(XOOPS_URL,"/")."\//", $ref)) $ref="";
     elseif (preg_match("/^".preg_quote(XOOPS_URL,"/")."\$/", $ref)) $ref="";
+    elseif (!preg_match("/^https?:\/\/i", $ref)) $ref=""; // no http (fake?)
     if ($xoopsDB->getRowsNum($result)) {
 	list($tid, $disable) = $xoopsDB->fetchRow($result);
     } else {
