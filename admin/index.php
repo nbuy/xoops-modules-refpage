@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.9 2004/10/02 14:39:16 nobu Exp $
+// $Id: index.php,v 1.10 2004/10/24 15:29:26 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -68,8 +68,8 @@ function track_list($start, $page) {
 	_AM_ENTRY_VIEW." ".myselect("m", array(''=>_AM_ENTRY_ENABLE,'dis'=>_AM_ENTRY_DISABLE, 'all'=>_AM_ENTRY_ALL), $mode).
 	" <input type='submit' value='"._SUBMIT."' />\n</form>";
 
-    $result = $xoopsDB->query("SELECT count(track_id) FROM $tbl WHERE $cond 1");
-    list($nrec) = $xoopsDB->fetchRow($result);
+    $result = $xoopsDB->query("SELECT track_id FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id");
+    $nrec = $xoopsDB->getRowsNum($result);
     $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $trackConfig['list_max'], $start);
     if ($nrec) {
 	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=list&page=%d$opt'>(%d)</a>");
@@ -368,7 +368,7 @@ function track_expire() {
 function commit_expire() {
     global $xoopsDB, $tbr, $trackConfig, $HTTP_POST_VARS;
     $past = expire_priod(intval($HTTP_POST_VARS['days']));
-    $lcond = intval($HTTP_POST_VARS['linked'])?" OR linked=1":"";
+    $lcond = intval($HTTP_POST_VARS['linked'])?" OR linked=0":"";
     $res = $xoopsDB->query("DELETE FROM $tbr WHERE mtime<$past AND nref<=".intval($HTTP_POST_VARS['threshold']).$lcond);
     $res = $xoopsDB->query("DELETE track_id, track_uri FROM $tbl WHERE track_id NOT IN (SELECT track_from FROM $tbr GROUP BY track_from)");
     redirect_header("index.php",1,_AM_DBUPDATED);
