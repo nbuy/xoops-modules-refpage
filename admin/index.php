@@ -1,5 +1,5 @@
 <?php
-// $Id: index.php,v 1.5 2003/12/09 07:15:38 nobu Exp $
+// $Id: index.php,v 1.6 2003/12/10 09:49:50 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -40,7 +40,7 @@ if ( $op == "list" ) {
 
     $result = $xoopsDB->query("SELECT count(track_id) FROM $tbl WHERE $cond 1");
     list($nrec) = $xoopsDB->fetchRow($result);
-    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $trackConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $trackConfig['list_max'], $start);
     if ($nrec) {
 	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?page=%d$opt'>(%d)</a>");
 	echo $pctrl;
@@ -49,12 +49,12 @@ if ( $op == "list" ) {
 	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_TRACKBACK_PAGE."</th><th>"._AM_REF_LINKS."</th></tr>\n";
 	$nc = 1;
 	
-	while (list($tid, $uri, $count, $disable) = $xoopsDB->fetchRow($result)) {
+	while (list($tid, $uri, $count, $nlink, $disable) = $xoopsDB->fetchRow($result)) {
 	    $bg = $disable?'dis':$tags[($nc++ % 2)];
 	    echo "<tr class='$bg'>".
 		"<td style='text-align: center'><input type='checkbox' name='disable[$tid]' ".($disable?"checked":"")." /><input type='hidden' name='trid[$tid]' value='1' /></td>".
 		"<td><a href='index.php?op=edit&tid=$tid'>".uri_to_name($uri)."</a></td>".
-		"<td style='text-align: center'>$count</td>".
+		"<td style='text-align: center'>$nlink / $count</td>".
 		"</tr>\n";
 	}
 	echo "</table>\n";
@@ -100,7 +100,7 @@ if ( $op == "edit" ) {
 	    echo "<tr class='$bg'><td>".
 		"<input type='checkbox' name='link[$rid]' $mkl />".
 		"<input type='hidden' name='refid[$rid]' value='ok' />".
-		" #$start: ".($data['checked']?"":" ("._AM_UNCHECK.")").
+		"$start. ".($data['checked']?"":" ("._AM_UNCHECK.")").
 		make_track_item($data, $fbox).
 		"</td>".
 		"</tr>\n";

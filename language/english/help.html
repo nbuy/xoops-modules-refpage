@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html languagee="ja">
+<head>
+<title>Trackback module for XOOPS</title>
+<style>
+td,th { padding: 4px; background: #e8e8e8;}
+h1,h2,h3 { color: #008000; }
+pre { color: #600000; }
+.hd th  { padding: 4px; background: #d0d0d0; }
+.bnf { color: #008000; }
+.note { font-size: 80%; color: #800000; padding: 0.5em;}
+</style>
+</head>
+<body>
+<h1>Trackback module for XOOPS</h1>
+
+<p>In this module add to XOOPS function, Records and Display
+trackback information.</p>
+
+<h2>Requires</h2>
+
+This module require following:
+
+<ul>
+  <li>Work with XOOPS 1.3.x and XOOPS 2.0.x</li>
+  <li>Need in PHP mbstring function if support MULTIBYTE</li>
+  <li>License is GPL2 (same as XOOPS)</li>
+</ul>
+
+<h2>Install and Using</h2>
+
+Expand archive in modules directory (XOOPS_ROOT_PATH/modules/),
+and Install via XOOPS module administration.
+
+<ol>
+   <li>Upload files</li>
+   <li>Install via Module Administraion</li>
+   <li>Allow access permission in "Register Users" and "Anonymous Users" in Group Administration [<a href="#note1">*1</a>]</li>
+   <li>Set to position and display in Block Administration [<a href="#note2">*2</a>]</li>
+</ol>
+<blockquote>
+<table width="90%">
+<tr valign="top"><th><a name="note1">[*1]</a></th><td>Always need to set allow access in Block. Module access allow in your policy. </td>
+</tr>
+<tr valign="top"><th><a name="note2">[*2]</a></th><td>Block need to display. This module to records in block functions. 
+If You want hide information in block, Set "Show trackback information in block: Don't" in Module Setting.</td>
+</tr>
+</table>
+</blockquote>
+
+Set above finished, after to work automatic.
+
+<h2>Notice to install</h2>
+
+When use with XOOPS 1.3.x, and Headline module to active, please fix following:
+
+<pre>
+--- class/phpsyndication.lib.php	21 Aug 2003 16:23:19 -0000	1.7
++++ class/phpsyndication.lib.php	5 Dec 2003 12:30:21 -0000
+@@ -71,7 +71,7 @@
+ 	/**
+ 	 * includes Snoopy class for remote file access
+ 	 */
+-	require(XOOPS_ROOT_PATH."/class/snoopy.class.php");
++	require_once(XOOPS_ROOT_PATH."/class/snoopy.class.php");
+ 
+ 	class RSStoHTML
+ 	{
+</pre>
+
+<h2>Administraion</h2>
+
+Administration in module manipulate trackback information and Setting module behavior.
+
+<h3>Edit Trackback targets</h3>
+
+  <p>Index of reference pages listed records from other pages. 
+     In this page can do disable to record referer information.
+     Mark checkbox and push "Change disable" button. Disabled page
+     Not record more information.</p>
+
+  <p>If you want back to enable page, Display status set to "All" or "Disable"
+  and Checked off Disable mark.</p>
+
+<h3>Edit link information</h3>
+
+  <p>Listed link information eech trackback target
+  page. Checkbox that is top on the item was mean link
+  information are displayed when marked.</p>
+
+  <p>In addional link information has force update
+  checkbox. This marked and update will be re-checking origin
+  page when next someone click the link.</p>
+
+<h3>Check for origin page</h3>
+
+  <p>In this module, checking origin page where exists link
+  anchor to the target page. If there is no link or can't access
+  origin page the link information to be not yet checked.</p>
+
+  <p>In this section to check origin pages by administrator.</p>
+
+<h3>Setup Module</h3>
+
+  Setup module behaviors.
+<ul>
+    <li>Automatic origin checking [Do it]/Don't</li>
+
+      <p>Check and take origin page information in automatic.
+      Default is "Do it".
+      Administrator need to check any links if "Don't" setting.</p>
+
+      <p>"Don't" will be use when only to record URL information
+      in passive.</p>
+
+    <li>Show trackback information in block  [Do it]/Don't</li>
+
+      <p>Display trackback information in block. Default is "Do it".
+      Set "Don't" if you want total close in trackback information.</p>
+
+    <li>Number of items in a page</li>
+
+      <p>Number of items or lists in a page, over in this value to make
+      split to pages.</p>
+
+    <li>Title string length (..255)</li>
+
+      <p>Title to be trim length in this value when displayed.</p>
+
+    <li>Text around link from origin page (..255)</li>
+
+      <p>To take out from origin page around link anchor. Trim
+      to length in this value and save in database.</p>
+
+    <li>Re-checking until last access over in this days</li>
+
+      <p>Last access after more than in this setting, link information to check and update link information.</p>
+
+    <li>No display link without checking</li>
+
+      <p>Like a search engine no need to check and not want show
+      information in usual. Setting to domain (and path)
+      list. Wildcard '*' can use.</p>
+
+    <li>Display link without checking</li>
+
+      <p>Like above setting, This to set accept the link without checking.
+      Will be use Friends site or well known site.</p>
+</ul>
+
+<h3>Block options</h3>
+
+Block Administration to edit this module blocks. There is additional option 
+display lines and length in linked page title in block.
+
+<h2>Thanks</h2>
+
+In this module development, nao-pon (<a
+href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggestions. Also t_miyabi and toshii reported testing module at forum in jp.XOOPS.org. Thank you coorperation.
+
+<h2>Changes</h2>
+
+<dl>
+  <dd>[2003/12/10] trackback-1.0 Release</dd>
+</dl>
+--
+<address>
+Nobuhiro Yasutomi <<a href="mailto:nobuhiro.yasutomi@nifty.ne.jp">nobuhiro.yasutomi@nifty.ne.jp</a><br/>
+MySite Users<br/>
+<a href="http://mysite.ddo.jp/">http://mysite.ddo.jp/</a>
+</address>
+$Id: help.html,v 1.1 2003/12/10 09:49:50 nobu Exp $
+</body>
+</html>
