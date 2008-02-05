@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.10 2004/10/24 15:29:26 nobu Exp $
+// $Id: index.php,v 1.11 2008/02/05 07:50:35 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -313,7 +313,8 @@ if ( $op == "config" ) {
 
 function config_update() {
     global $HTTP_POST_VARS, $xoopsModule;
-    $config="\$trackConfig['exclude']=\"".crlf2nl($HTTP_POST_VARS['exclude'])."\";\n".
+    $config="global \$trackConfig;\n".
+	"\$trackConfig['exclude']=\"".crlf2nl($HTTP_POST_VARS['exclude'])."\";\n".
 	"\$trackConfig['include']=\"".crlf2nl($HTTP_POST_VARS['include'])."\";\n".
 	"\$trackConfig['auto_check']=".intval($HTTP_POST_VARS['autocheck']).";\n".
 	"\$trackConfig['block_hide']=".intval($HTTP_POST_VARS['blockhide']).";\n".
