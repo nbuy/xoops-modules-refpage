@@ -1,4 +1,5 @@
 <?php
+global $adminmenu;
 $adminmenu[0]['title'] = _MI_TRACKBACK_ADMENU1;
 $adminmenu[0]['link'] = "admin/index.php?op=list";
 $adminmenu[1]['title'] = _MI_TRACKBACK_ADMENU2;

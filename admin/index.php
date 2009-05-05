@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.12 2009/05/05 01:55:34 nobu Exp $
+// $Id: index.php,v 1.13 2009/05/05 02:17:58 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -16,38 +16,64 @@ $myts =& MyTextSanitizer::getInstance();
 $tbl = $xoopsDB->prefix("trackback");
 $tbr = $xoopsDB->prefix("trackback_ref");
 $tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2' width='100%'";
+
 switch ($op) {
  case 'config_update':
      config_update();
-     break;
+     exit;
+ case 'edit_update':
+     edit_update();
+     exit;
+ case 'check_update':
+     check_update();
+     exit;
+}
+
+if( ! empty( $_GET['lib'] ) ) {
+    global $mydirpath;
+    $mydirpath = dirname(dirname(__FILE__));
+    $mydirname = basename($mydirpath);
+    // common libs (eg. altsys)
+    $lib = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , $_GET['lib'] ) ;
+    $page = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) ;
+    
+    if( file_exists( XOOPS_TRUST_PATH.'/libs/'.$lib.'/'.$page.'.php' ) ) {
+	include XOOPS_TRUST_PATH.'/libs/'.$lib.'/'.$page.'.php' ;
+	} else if( file_exists( XOOPS_TRUST_PATH.'/libs/'.$lib.'/index.php' ) ) {
+	include XOOPS_TRUST_PATH.'/libs/'.$lib.'/index.php' ;
+    } else {
+	die( 'wrong request' ) ;
+    }
+    exit;
+}
+
+xoops_cp_header();
+include "mymenu.php";
+
+switch ($op) {
  case 'edit':
      track_edit($start, $page);
      break;
- case 'edit_update':
-     edit_update();
-     break;
  case 'check':
      track_check($start, $page);
-     break;
- case 'check_update':
-     check_update();
      break;
  case 'disable':
      track_disalbe();
      break;
  case 'config':
+     config_edit();
      break;
  case 'expire':
      if (isset($_POST['commit'])) commit_expire();
      else track_expire();
      break;
  default:
-     xoops_cp_header();
-     if ($op == "") show_menu();
      track_list($start, $page);
-     xoops_cp_footer();
      break;
 }
+
+xoops_cp_footer();
+exit;
 
 function track_list($start, $page) {
     global $xoopsDB, $tbl, $tbr, $trackConfig;
@@ -103,7 +129,6 @@ function track_edit($start, $page) {
     $tid = $_GET['tid'];
     $result = $xoopsDB->query("SELECT track_uri, disable FROM $tbl WHERE track_id=$tid");
     list($uri, $disable)=$xoopsDB->fetchRow($result);
-    xoops_cp_header();
     echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_PAGE."</h4>";
 
     $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE track_from=$tid");
@@ -140,7 +165,6 @@ function track_edit($start, $page) {
     }
     echo $pctrl;
 
-    xoops_cp_footer();
 }
 
 function edit_update() {
@@ -171,7 +195,6 @@ function edit_update() {
 function track_check() {
     global $xoopsDB, $tbl, $tbr;
     global $tags, $tblstyle;
-    xoops_cp_header();
     echo "<h4'>"._AM_TRACKBACK_CHECK."</h4>";
     $result = $xoopsDB->query("SELECT * FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
@@ -221,7 +244,6 @@ function myCheckAll(formname, switchid, group) {
     } else {
 	echo _AM_NO_UNCHECKED;
     }
-    xoops_cp_footer();
 }
 
 function check_update() {
@@ -267,11 +289,11 @@ function track_disalbe() {
     exit();
 }
 
-if ( $op == "config" ) {
-    xoops_cp_header();
+function config_edit() {
+    global $trackConfig;
     echo "<h4>" ._AM_TRACKBACK_CONFIG. "</h4>\n";
 
-    $cfg = "$modbase/cache/config.php";
+    $cfg = dirname(dirname(__FILE__))."/cache/config.php";
     if (!function_exists("getCache") && !is_writable($cfg)) {
 	echo "<p style='color: red;'>".sprintf(_MUSTWABLE,$cfg)."</p>\n";
     }
@@ -300,7 +322,6 @@ if ( $op == "config" ) {
 	"<input type='hidden' name='op' value='config_update' />\n".
 	"<p><input type='submit' value='"._SUBMIT."' /></p>\n".
 	"</form>\n";
-    xoops_cp_footer();
 }
 
 function config_update() {
@@ -327,8 +348,6 @@ function expire_priod($days) {
 function track_expire() {
     global $xoopsDB, $tbl, $tbr, $trackConfig;
 
-    xoops_cp_header();
-
     echo "<h4>"._AM_TRACK_EXPIRED."</h4>";
     $days = isset($_POST['days'])
 	?intval($_POST['days']):$trackConfig['expire'];
@@ -353,7 +372,6 @@ function track_expire() {
 <input type='submit' name='confirm' value='"._AM_CONFIRM."' /></td></tr>
 </table>
 </form>";
-    xoops_cp_footer();
 }
 
 function commit_expire() {
@@ -367,7 +385,7 @@ function commit_expire() {
  }
 
 function show_menu() {
-    global $xoopsModule, $xoopsDB, $tbr;
+    global $xoopsModule, $xoopsDB, $tbr, $adminmenu;
 
     include_once("menu.php");
     $base = XOOPS_URL."/modules/".$xoopsModule->dirname();
