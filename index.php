@@ -1,30 +1,28 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.9 2004/10/24 15:26:30 nobu Exp $
+// $Id: index.php,v 1.10 2009/05/05 01:55:34 nobu Exp $
 include("header.php");
-error_reporting(E_ALL);
 include_once "functions.php";
 
 $base = XOOPS_URL."/modules/".$xoopsModule->dirname();
 $basedir = XOOPS_ROOT_PATH."/modules/".$xoopsModule->dirname();
 
-$track_id =isset($HTTP_GET_VARS['id'])?intval($HTTP_GET_VARS['id']):"";
-$page = isset($HTTP_GET_VARS['page'])?intval($HTTP_GET_VARS['page']):1;
-$detail = isset($HTTP_GET_VARS['detail']);
+$track_id =isset($_GET['id'])?intval($_GET['id']):"";
+$page = isset($_GET['page'])?intval($_GET['page']):1;
+$detail = isset($_GET['detail']);
 
 $tbl = $xoopsDB->prefix("trackback");
 $tbr = $xoopsDB->prefix("trackback_ref");
-$tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2' width='100%'";
+$tblstyle="border='0' cellspacing='1' cellpadding='3' class='outer' width='100%'";
 include(XOOPS_ROOT_PATH."/header.php");
-OpenTable();
 
 if (!isset($trackConfig['threshold'])) $trackConfig['threshold'] = 1;
 
 if ($track_id == "all") {
     $order = "nref DESC";
     $opt = "";
-    if (isset($HTTP_GET_VARS['order'])) {
-	switch ($HTTP_GET_VARS['order']) {
+    if (isset($_GET['order'])) {
+	switch ($_GET['order']) {
 	case 'time':
 	    $order = "mtime DESC";
 	    $opt .= "&order=time";
@@ -51,7 +49,7 @@ if ($track_id == "all") {
 	    $start++;
 	    $uri = $data['track_uri'];
 	    $linkto = " "._TB_LINKTO." <a href='$uri'>".uri_to_name($uri)."</a>";
-	    echo "<tr class='$bg'><td>$start. ".make_track_item($data, $linkto)."</td></tr>\n";
+	    echo "<tr class='$bg'><td class='trackitem'>$start. ".make_track_item($data, $linkto)."</td></tr>\n";
 	}
 	echo "</table>\n";
 	echo $pctrl;
@@ -72,7 +70,7 @@ if ($track_id == "all") {
 	while (list($tid, $uri, $refs)=$xoopsDB->fetchRow($result)) {
 	    $bg = $tags[($nc++ % 2)];
 	    $start++;
-	    echo "<tr class='$bg'><td>$start. <a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td></tr>\n";
+	    echo "<tr class='$bg'><td class='trackref'>$start. <a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td></tr>\n";
 	}
 	echo "</table>\n";
 	echo $pctrl;
@@ -81,8 +79,8 @@ if ($track_id == "all") {
     // a tracking page
     $order = "nref DESC";
     $opt = "";
-    if (isset($HTTP_GET_VARS['order'])) {
-	switch ($HTTP_GET_VARS['order']) {
+    if (isset($_GET['order'])) {
+	switch ($_GET['order']) {
 	case 'time':
 	    $order = "mtime DESC";
 	    $opt .= "&order=time";
@@ -141,12 +139,11 @@ if ($track_id == "all") {
 		$data["refn"] = $refn;
 		$data["ref_url"] = $refs[0];
 	    }
-	    echo "<tr class='$bg'><td>$start. ".make_track_item($data)."</td></tr>\n";
+	    echo "<tr class='$bg'><td class='trackitem'>$start. ".make_track_item($data)."</td></tr>\n";
 	}
 	echo "</table>\n";
 	echo $pctrl;
     }
 }
-CloseTable();
 include (XOOPS_ROOT_PATH."/footer.php");
 ?>

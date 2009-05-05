@@ -1,15 +1,17 @@
 <?php
-// $Id: refpage.php,v 1.11 2004/11/03 16:04:20 nobu Exp $
+// $Id: refpage.php,v 1.12 2009/05/05 01:55:34 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
-    $moddir = 'trackback';
+    $moddir = basename(dirname(dirname(__FILE__)));
 
     // ** trackback recoding **
 
     $ref = isset($_SERVER["HTTP_REFERER"])?$_SERVER["HTTP_REFERER"]:"";
     $uri = $_SERVER["REQUEST_URI"];
     $uri = preg_replace('/\/index.php$/', '/', $uri);
-    $uri = preg_replace('/&?PHPSESSID=[^&]*/', '', $uri);
+    $uri = preg_replace('|^(/modules/mydownloads/singlefile\.php\?)cid=\d+&|', '$1', $uri);
+    $uri = preg_replace('/[&\?]?PHPSESSID=[^&]*/', '', $uri);
+    $uri = preg_replace('/[&\?]?easiestml_lang=(ja|en)/', '', $uri);
     $uriq= addslashes($uri);
     $now = time();
 
@@ -45,7 +47,7 @@ function b_trackback_log_show($options) {
 	include_once XOOPS_ROOT_PATH."/modules/$moddir/cache/config.php";
     }
 
-    if ($tid && $ref!="") {
+    if ($tid && !empty($ref)) {
 	$refq= addslashes($ref);
 	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
@@ -171,8 +173,8 @@ function list_to_regexp($l) {
 // duplicate in ../function.php - umm..
 if (!function_exists("mysubstr")) {
     function mysubstr($s, $f, $l) {
-	if (XOOPS_USE_MULTIBYTES && function_exists("mb_strcut")) {
-	    return mb_strcut($s, $f, $l, _CHARSET);
+	if (function_exists("mb_strcut")) {
+	    return mb_strcut($s, $f, $l, 'utf-8');
 	} else {
 	    return substr($s, $f, $l);
 	}
@@ -236,6 +238,10 @@ function trackback_get_details($ref, $uri) {
 	    $ctext=mysubstr($pre, max(strlen($pre)-$m+1,0),$m)."<u>".strip_tags($a)."</u>";
 	    $m = $l-strlen($ctext);
 	    $ctext.=mysubstr($post, 0, min(strlen($post),$m));
+	    $ctext = mysubstr($ctext, 0, $l);
+	    if (preg_match('/<u>/', $ctext)&&!preg_match('/<\/u>/', $ctext)) {
+		$ctext = mysubstr($ctext,0,$l-4)."</u>";
+	    }
 	}
 	if ($linked == 1 || strip_tags($page) != "") $checked=1;
     }
@@ -244,7 +250,7 @@ function trackback_get_details($ref, $uri) {
 
 function mod_allow_access($dirname) {
     global $xoopsUser;
-    if (preg_match("/^XOOPS 2/",XOOPS_VERSION)) {
+    if (preg_match("/^XOOPS (2|Cube Legacy)/",XOOPS_VERSION)) {
 	$modhandler =& xoops_gethandler('module');
 	$mod =& $modhandler->getByDirname($dirname);
 	$handler =& xoops_gethandler('groupperm');

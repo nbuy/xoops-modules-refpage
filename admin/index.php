@@ -1,15 +1,15 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.11 2008/02/05 07:50:35 nobu Exp $
+// $Id: index.php,v 1.12 2009/05/05 01:55:34 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
 $dir = $xoopsModule->dirname();
 
 $op = "";
-if ( isset($HTTP_GET_VARS['op']) ) $op = $HTTP_GET_VARS['op'];
-if ( isset($HTTP_POST_VARS['op']) ) $op = $HTTP_POST_VARS['op'];
-$page = isset($HTTP_GET_VARS['page'])?$HTTP_GET_VARS['page']:1;
+if ( isset($_GET['op']) ) $op = $_GET['op'];
+if ( isset($_POST['op']) ) $op = $_POST['op'];
+$page = isset($_GET['page'])?$_GET['page']:1;
 $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
@@ -38,7 +38,7 @@ switch ($op) {
  case 'config':
      break;
  case 'expire':
-     if (isset($HTTP_POST_VARS['commit'])) commit_expire();
+     if (isset($_POST['commit'])) commit_expire();
      else track_expire();
      break;
  default:
@@ -50,11 +50,10 @@ switch ($op) {
 }
 
 function track_list($start, $page) {
-    global $xoopsDB, $HTTP_GET_VARS, $tbl, $tbr, $trackConfig;
+    global $xoopsDB, $tbl, $tbr, $trackConfig;
     global $tags, $tblstyle;
-    OpenTable();
     echo "<h4>"._AM_TRACKBACK_LIST."</h4>";
-    $mode = isset($HTTP_GET_VARS['m'])?$HTTP_GET_VARS['m']:"";
+    $mode = isset($_GET['m'])?$_GET['m']:"";
     $opt="";
     if ($mode == 'all') {
 	$cond = '';
@@ -96,17 +95,15 @@ function track_list($start, $page) {
     } else {
 	echo _AM_TRACK_NODATA;
     }
-    CloseTable();
 }
 
 function track_edit($start, $page) {
-    global $xoopsDB, $HTTP_GET_VARS, $tbl, $tbr, $trackConfig;
+    global $xoopsDB, $tbl, $tbr, $trackConfig;
     global $tags, $tblstyle;
-    $tid = $HTTP_GET_VARS['tid'];
+    $tid = $_GET['tid'];
     $result = $xoopsDB->query("SELECT track_uri, disable FROM $tbl WHERE track_id=$tid");
     list($uri, $disable)=$xoopsDB->fetchRow($result);
     xoops_cp_header();
-    OpenTable();
     echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_PAGE."</h4>";
 
     $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE track_from=$tid");
@@ -143,19 +140,18 @@ function track_edit($start, $page) {
     }
     echo $pctrl;
 
-    CloseTable();
     xoops_cp_footer();
 }
 
 function edit_update() {
-    global $xoopsDB, $HTTP_POST_VARS, $tbl, $tbr;
-    $tid = $HTTP_POST_VARS['tid'];
+    global $xoopsDB, $tbl, $tbr;
+    $tid = $_POST['tid'];
     $sets = "";
     $resets = "";
     $flushs = "";
-    $link = isset($HTTP_POST_VARS['link'])?$HTTP_POST_VARS['link']:array();
-    $flush = isset($HTTP_POST_VARS['flush'])?$HTTP_POST_VARS['flush']:array();
-    foreach ($HTTP_POST_VARS['refid'] as $i => $v) {
+    $link = isset($_POST['link'])?$_POST['link']:array();
+    $flush = isset($_POST['flush'])?$_POST['flush']:array();
+    foreach ($_POST['refid'] as $i => $v) {
 	if (isset($link[$i])) {
 	    $sets .= ($sets==""?"":" OR ")."ref_id=$i";
 	} else {
@@ -176,7 +172,6 @@ function track_check() {
     global $xoopsDB, $tbl, $tbr;
     global $tags, $tblstyle;
     xoops_cp_header();
-    OpenTable();
     echo "<h4'>"._AM_TRACKBACK_CHECK."</h4>";
     $result = $xoopsDB->query("SELECT * FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
@@ -226,24 +221,23 @@ function myCheckAll(formname, switchid, group) {
     } else {
 	echo _AM_NO_UNCHECKED;
     }
-    CloseTable();
     xoops_cp_footer();
 }
 
 function check_update() {
-    global $xoopsDB, $HTTP_POST_VARS, $tbl, $tbr;
-    if (isset($HTTP_POST_VARS['link'])) {
+    global $xoopsDB, $tbl, $tbr;
+    if (isset($_POST['link'])) {
 	$cond = "";
-	foreach ($HTTP_POST_VARS['link'] as $i => $v) {
+	foreach ($_POST['link'] as $i => $v) {
 	    if ($cond=="") $cond = "ref_id=$i";
 	    else $cond .= " OR ref_id=$i";
 	}
 	$xoopsDB->query("UPDATE $tbr SET linked=0 WHERE checked=0");
 	$xoopsDB->query("UPDATE $tbr SET linked=1 WHERE $cond");
     }
-    if (isset($HTTP_POST_VARS['check'])) {
+    if (isset($_POST['check'])) {
 	$cond = "";
-	foreach ($HTTP_POST_VARS['check'] as $i => $v) {
+	foreach ($_POST['check'] as $i => $v) {
 	    if ($cond=="") $cond = "ref_id=$i";
 	    else $cond .= " OR ref_id=$i";
 	}
@@ -254,12 +248,12 @@ function check_update() {
 }
 
 function track_disalbe() {
-    global $xoopsDB, $HTTP_POST_VARS, $tbl;
+    global $xoopsDB, $tbl;
 
-    $disable = isset($HTTP_POST_VARS['disable'])?$HTTP_POST_VARS['disable']:array();
+    $disable = isset($_POST['disable'])?$_POST['disable']:array();
     $resets = "";
     $sets = "";
-    foreach ($HTTP_POST_VARS['trid'] as $tid => $v) {
+    foreach ($_POST['trid'] as $tid => $v) {
 	if (isset($disable[$tid])) {
 	    $sets .= ($sets==""?"":" OR ")."track_id=$tid";
 	} else {
@@ -269,13 +263,12 @@ function track_disalbe() {
     if ($resets!="") $xoopsDB->query("UPDATE $tbl SET disable=0 WHERE $resets");
     if ($sets!="") $xoopsDB->query("UPDATE $tbl SET disable=1 WHERE $sets");
     
-    redirect_header("index.php".(empty($HTTP_POST_VARS['m'])?"":"?m=".$HTTP_POST_VARS['m']),1,_AM_DBUPDATED);
+    redirect_header("index.php".(empty($_POST['m'])?"":"?m=".$_POST['m']),1,_AM_DBUPDATED);
     exit();
 }
 
 if ( $op == "config" ) {
     xoops_cp_header();
-    OpenTable();
     echo "<h4>" ._AM_TRACKBACK_CONFIG. "</h4>\n";
 
     $cfg = "$modbase/cache/config.php";
@@ -284,19 +277,19 @@ if ( $op == "config" ) {
     }
 
     echo "<form action='index.php' method='post'>\n".
-	"<table>\n<tr><td class='nw'>"._AM_TRACK_AUTOCHECK."</td><td>".
+	"<table class='outer'>\n<tr class='even'><td class='head'>"._AM_TRACK_AUTOCHECK."</td><td>".
 	myradio("autocheck", array(1=>_AM_DO, 0=>_AM_DONT), $trackConfig['auto_check'])."</td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_BLOCKHIDE."</td><td>".
+	"<tr class='odd'><td class='head'>"._AM_TRACK_BLOCKHIDE."</td><td>".
 	myradio("blockhide", array(0=>_AM_DO, 1=>_AM_DONT), $trackConfig['block_hide'])."</td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_LIST_MAX."</td><td>".
+	"<tr class='even'><td class='head'>"._AM_TRACK_LIST_MAX."</td><td>".
 	"<input size='4' name='listmax' value='".$trackConfig['list_max']."' /></td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_TITLELEN."</td><td>".
+	"<tr class='odd'><td class='head'>"._AM_TRACK_TITLELEN."</td><td>".
 	"<input size='4' name='titlelen' value='".$trackConfig['title_len']."' /></td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_CTEXTLEN."</td><td>".
+	"<tr class='even'><td class='head'>"._AM_TRACK_CTEXTLEN."</td><td>".
 	"<input size='4' name='ctextlen' value='".$trackConfig['ctext_len']."' /></td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_EXPIREDAY."</td><td>".
+	"<tr class='odd'><td class='head'>"._AM_TRACK_EXPIREDAY."</td><td>".
 	"<input size='4' name='expireday' value='".$trackConfig['expire']."' /></td></tr>\n".
-	"<tr><td class='nw'>"._AM_TRACK_THRESHOLD."</td><td>".
+	"<tr class='even'><td class='head'>"._AM_TRACK_THRESHOLD."</td><td>".
 	"<input size='4' name='threshold' value='".$trackConfig['threshold']."' /></td></tr>\n".
 	"</table>\n";
 
@@ -307,22 +300,21 @@ if ( $op == "config" ) {
 	"<input type='hidden' name='op' value='config_update' />\n".
 	"<p><input type='submit' value='"._SUBMIT."' /></p>\n".
 	"</form>\n";
-    CloseTable();
     xoops_cp_footer();
 }
 
 function config_update() {
-    global $HTTP_POST_VARS, $xoopsModule;
+    global $xoopsModule;
     $config="global \$trackConfig;\n".
-	"\$trackConfig['exclude']=\"".crlf2nl($HTTP_POST_VARS['exclude'])."\";\n".
-	"\$trackConfig['include']=\"".crlf2nl($HTTP_POST_VARS['include'])."\";\n".
-	"\$trackConfig['auto_check']=".intval($HTTP_POST_VARS['autocheck']).";\n".
-	"\$trackConfig['block_hide']=".intval($HTTP_POST_VARS['blockhide']).";\n".
-	"\$trackConfig['list_max']=".intval($HTTP_POST_VARS['listmax']).";\n".
-	"\$trackConfig['title_len']=".intval($HTTP_POST_VARS['titlelen']).";\n".
-	"\$trackConfig['ctext_len']=".intval($HTTP_POST_VARS['ctextlen']).";\n".
-	"\$trackConfig['expire']=".intval($HTTP_POST_VARS['expireday']).";\n".
-	"\$trackConfig['threshold']=".intval($HTTP_POST_VARS['threshold']).";";
+	"\$trackConfig['exclude']=\"".crlf2nl($_POST['exclude'])."\";\n".
+	"\$trackConfig['include']=\"".crlf2nl($_POST['include'])."\";\n".
+	"\$trackConfig['auto_check']=".intval($_POST['autocheck']).";\n".
+	"\$trackConfig['block_hide']=".intval($_POST['blockhide']).";\n".
+	"\$trackConfig['list_max']=".intval($_POST['listmax']).";\n".
+	"\$trackConfig['title_len']=".intval($_POST['titlelen']).";\n".
+	"\$trackConfig['ctext_len']=".intval($_POST['ctextlen']).";\n".
+	"\$trackConfig['expire']=".intval($_POST['expireday']).";\n".
+	"\$trackConfig['threshold']=".intval($_POST['threshold']).";";
     putCache($xoopsModule->dirname()."/config.php", $config);
     redirect_header("index.php?op=config",1,_AM_DBUPDATED);
     exit();
@@ -333,17 +325,16 @@ function expire_priod($days) {
 }
 
 function track_expire() {
-    global $xoopsDB, $tbl, $tbr, $trackConfig, $HTTP_POST_VARS;
+    global $xoopsDB, $tbl, $tbr, $trackConfig;
 
     xoops_cp_header();
 
-    OpenTable();
     echo "<h4>"._AM_TRACK_EXPIRED."</h4>";
-    $days = isset($HTTP_POST_VARS['days'])
-	?intval($HTTP_POST_VARS['days']):$trackConfig['expire'];
-    $threshold = isset($HTTP_POST_VARS['threshold'])
-	?intval($HTTP_POST_VARS['threshold']):$trackConfig['threshold'];
-    $linked = isset($HTTP_POST_VARS['linked'])?intval($HTTP_POST_VARS['linked']):0;
+    $days = isset($_POST['days'])
+	?intval($_POST['days']):$trackConfig['expire'];
+    $threshold = isset($_POST['threshold'])
+	?intval($_POST['threshold']):$trackConfig['threshold'];
+    $linked = isset($_POST['linked'])?intval($_POST['linked']):0;
     $lcond = ($linked)?" OR linked=1":"";
     $past = expire_priod($days);
     $res = $xoopsDB->query("SELECT count(*) FROM $tbr WHERE mtime<$past AND nref<=$threshold$lcond");
@@ -362,15 +353,14 @@ function track_expire() {
 <input type='submit' name='confirm' value='"._AM_CONFIRM."' /></td></tr>
 </table>
 </form>";
-    CloseTable();
     xoops_cp_footer();
 }
 
 function commit_expire() {
-    global $xoopsDB, $tbr, $trackConfig, $HTTP_POST_VARS;
-    $past = expire_priod(intval($HTTP_POST_VARS['days']));
-    $lcond = intval($HTTP_POST_VARS['linked'])?" OR linked=0":"";
-    $res = $xoopsDB->query("DELETE FROM $tbr WHERE mtime<$past AND nref<=".intval($HTTP_POST_VARS['threshold']).$lcond);
+    global $xoopsDB, $tbr, $trackConfig;
+    $past = expire_priod(intval($_POST['days']));
+    $lcond = intval($_POST['linked'])?" OR linked=0":"";
+    $res = $xoopsDB->query("DELETE FROM $tbr WHERE mtime<$past AND nref<=".intval($_POST['threshold']).$lcond);
     $res = $xoopsDB->query("DELETE track_id, track_uri FROM $tbl WHERE track_id NOT IN (SELECT track_from FROM $tbr GROUP BY track_from)");
     redirect_header("index.php",1,_AM_DBUPDATED);
     exit;
@@ -379,7 +369,6 @@ function commit_expire() {
 function show_menu() {
     global $xoopsModule, $xoopsDB, $tbr;
 
-    OpenTable();
     include_once("menu.php");
     $base = XOOPS_URL."/modules/".$xoopsModule->dirname();
     foreach ($adminmenu as $v) {
@@ -394,7 +383,6 @@ function show_menu() {
 	echo "<p><a href='index.php?op=check'>".sprintf(_AM_UNCHECKED,$ck)."</a></p>";
     }
 
-    CloseTable();
 }
 
 function myradio($name, $value, $def) {

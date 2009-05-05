@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.8 2004/10/24 15:26:30 nobu Exp $
+// $Id: functions.php,v 1.9 2009/05/05 01:55:34 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -99,7 +99,7 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
 	$title=mysubstr($title, 0, $len-2)."..";
     }
     if ($data['context'] != '') {
-	$ctext = _TB_LEADER.preg_replace('/<u>/', "<u class='anc'>", $data['context'])._TB_LEADER;
+	$ctext = _TB_LEADER.preg_replace(array('/&lt;u&gt;/', '/&lt;\\/u&gt;/'), array("<u class='anc'>", "</u>"), htmlspecialchars($data['context']))._TB_LEADER;
     } else {
 	$ctext = "";
     }

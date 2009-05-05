@@ -1,7 +1,7 @@
 #
 # XOOPS 1.3.x trackback SQL schema
 #
-# $Id: mysql.sql,v 1.3 2003/12/03 09:20:24 nobu Exp $
+# $Id: mysql.sql,v 1.4 2009/05/05 01:55:34 nobu Exp $
 
 # --------------------------------------------------------
 
