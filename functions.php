@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.9 2009/05/05 01:55:34 nobu Exp $
+// $Id: functions.php,v 1.10 2009/07/13 07:03:10 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -44,8 +44,8 @@ function mysubstr($s, $f, $l=99999) {
 }
 
 function make_page_index($title, $max, $cur, $format, $asis=" <b>[%d]</b>") {
-    global $trackConfig;
-    $npg = intval(($max-1)/$trackConfig['list_max'])+1;
+    global $xoopsModuleConfig;
+    $npg = intval(($max-1)/$xoopsModuleConfig['list_max'])+1;
     if ($npg<2) $npg=1;
     $result = "<div class='pgindex'>$title: ";
     $side = 2;
@@ -76,7 +76,7 @@ function crlf2nl($s) {
 }
 
 function make_track_item($data, $add="", $attr="target='_blank'") {
-    global $trackConfig;
+    global $xoopsModuleConfig;
     $cdate = formatTimestamp($data['since'], "m");
     $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
     $url = $data['ref_url'];
@@ -91,7 +91,7 @@ function make_track_item($data, $add="", $attr="target='_blank'") {
 	$nurl = "<div class='trinfo'>$nurl</div>";
     }
     $title = $data['title'];
-    $len = max($trackConfig['title_len'],255);
+    $len = max($xoopsModuleConfig['title_len'],255);
     $alt = "";
     if ($title == '') $title = strim(myurldecode($url), $len);
     elseif (strlen($title)>$len) {

@@ -1,8 +1,15 @@
 <?php
-// $Id: refpage.php,v 1.12 2009/05/05 01:55:34 nobu Exp $
+// $Id: refpage.php,v 1.13 2009/07/13 07:03:10 nobu Exp $
 function b_trackback_log_show($options) {
     global $xoopsDB, $trackConfig;
-    $moddir = basename(dirname(dirname(__FILE__)));
+
+    if (isset($trackConfig)) {
+	$config_handler =& xoops_gethandler('config');
+	$dirname = basename(dirname(dirname(__FILE__)));
+	$module_handler =& xoops_gethandler('module');
+	$module =& $module_handler->getByDirname($modversion['dirname']);
+	$trackConfig =& $config_handler->getConfigsByCat(0, $module->getVar('mid'));
+    }
 
     // ** trackback recoding **
 
@@ -40,12 +47,6 @@ function b_trackback_log_show($options) {
 
     $block = array();
     if ($disable) return $block; // disable in this page
-
-    if (function_exists("getCache")) {	// for local hacks
-	eval(getCache("$moddir/config.php"));
-    } else {
-	include_once XOOPS_ROOT_PATH."/modules/$moddir/cache/config.php";
-    }
 
     if ($tid && !empty($ref)) {
 	$refq= addslashes($ref);
@@ -116,7 +117,7 @@ function b_trackback_log_show($options) {
 
     // trackback show block build
 
-    if ($trackConfig['block_hide']) return $block;
+    if (!$trackConfig['block_show']) return $block;
     $block['title'] = _MB_TRACKBACK_TITLE;
     $body = "";
     if ($tid) {

@@ -1,7 +1,7 @@
 <?php
-// $Id: xoops_version.php,v 1.13 2009/05/05 02:28:33 nobu Exp $
+// $Id: xoops_version.php,v 1.14 2009/07/13 07:03:10 nobu Exp $
 $modversion['name'] = _MI_TRACKBACK_NAME;
-$modversion['version'] = "1.2";
+$modversion['version'] = "1.9";
 $modversion['description'] = _MI_TRACKBACK_DESC;
 $modversion['author'] = "Nobuhiro Yasutomi ( http://mysite.ddo.jp/ )";
 $modversion['credits'] = "Nobuhiro Yasutomi";
@@ -40,4 +40,67 @@ $modversion['blocks'][1]['options'] = "8|18";
 $modversion['hasMain'] = 1;
 $modversion['sub'][1]['name'] = _MI_TRACKBACK_SMENU1;
 $modversion['sub'][1]['url'] = "index.php?id=all";
+
+// Config
+$modversion['hasconfig'] = 1;
+$modversion['config'][]=array('name' => 'exclude',
+			      'title' => '_MI_TBCF_EXCLUDE',
+			      'description' => '_MI_TBCF_EXCLUDE_DESC',
+			      'formtype' => 'textarea',
+			      'valuetype' => 'string',
+			      'default' => _MI_TBCF_EXCLUDE_DEF);
+$modversion['config'][]=array('name' => 'include',
+			      'title' => '_MI_TBCF_INCLUDE',
+			      'description' => '_MI_TBCF_INCLUDE_DESC',
+			      'formtype' => 'textarea',
+			      'valuetype' => 'string',
+			      'default' => _MI_TBCF_INCLUDE_DEF);
+$modversion['config'][]=array('name' => 'auto_check',
+			      'title' => '_MI_TBCF_AUTOCHECK',
+			      'description' => '_MI_TBCF_AUTOCHECK_DESC',
+			      'formtype' => 'yesno',
+			      'valuetype' => 'int',
+			      'default' => 1);
+$modversion['config'][]=array('name' => 'block_show',
+			      'title' => '_MI_TBCF_BLOCKSHOW',
+			      'description' => '_MI_TBCF_BLOCKSHOW_DESC',
+			      'formtype' => 'yesno',
+			      'valuetype' => 'int',
+			      'default' => 1);
+$modversion['config'][]=array('name' => 'list_max',
+			      'title' => '_MI_TBCF_LISTMAX',
+			      'description' => '_MI_TBCF_LISTMAX_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 25);
+$modversion['config'][]=array('name' => 'title_len',
+			      'title' => '_MI_TBCF_TITLELEN',
+			      'description' => '_MI_TBCF_TITLELEN_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 60);
+$modversion['config'][]=array('name' => 'ctext_len',
+			      'title' => '_MI_TBCF_CTEXTLEN',
+			      'description' => '_MI_TBCF_CTEXTLEN_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 200);
+$modversion['config'][]=array('name' => 'ctext_len',
+			      'title' => '_MI_TBCF_CTEXTLEN',
+			      'description' => '_MI_TBCF_CTEXTLEN_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 200);
+$modversion['config'][]=array('name' => 'expire',
+			      'title' => '_MI_TBCF_EXPIREDAY',
+			      'description' => '_MI_TBCF_EXPIREDAY_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 30);
+$modversion['config'][]=array('name' => 'threshold',
+			      'title' => '_MI_TBCF_THRESHOLD',
+			      'description' => '_MI_TBCF_THRESHOLD_DESC',
+			      'formtype' => 'text',
+			      'valuetype' => 'int',
+			      'default' => 2);
 ?>

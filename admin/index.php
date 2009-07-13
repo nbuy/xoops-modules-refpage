@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.13 2009/05/05 02:17:58 nobu Exp $
+// $Id: index.php,v 1.14 2009/07/13 07:03:10 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -10,7 +10,7 @@ $op = "";
 if ( isset($_GET['op']) ) $op = $_GET['op'];
 if ( isset($_POST['op']) ) $op = $_POST['op'];
 $page = isset($_GET['page'])?$_GET['page']:1;
-$start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
+$start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
 $tbl = $xoopsDB->prefix("trackback");
@@ -18,15 +18,12 @@ $tbr = $xoopsDB->prefix("trackback_ref");
 $tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2' width='100%'";
 
 switch ($op) {
- case 'config_update':
-     config_update();
-     exit;
- case 'edit_update':
-     edit_update();
-     exit;
- case 'check_update':
-     check_update();
-     exit;
+case 'edit_update':
+    edit_update();
+    exit;
+case 'check_update':
+    check_update();
+    exit;
 }
 
 if( ! empty( $_GET['lib'] ) ) {
@@ -60,9 +57,6 @@ switch ($op) {
  case 'disable':
      track_disalbe();
      break;
- case 'config':
-     config_edit();
-     break;
  case 'expire':
      if (isset($_POST['commit'])) commit_expire();
      else track_expire();
@@ -76,7 +70,7 @@ xoops_cp_footer();
 exit;
 
 function track_list($start, $page) {
-    global $xoopsDB, $tbl, $tbr, $trackConfig;
+    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
     global $tags, $tblstyle;
     echo "<h4>"._AM_TRACKBACK_LIST."</h4>";
     $mode = isset($_GET['m'])?$_GET['m']:"";
@@ -95,7 +89,7 @@ function track_list($start, $page) {
 
     $result = $xoopsDB->query("SELECT track_id FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id");
     $nrec = $xoopsDB->getRowsNum($result);
-    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $trackConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
 	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=list&page=%d$opt'>(%d)</a>");
 	echo $pctrl;
@@ -124,7 +118,7 @@ function track_list($start, $page) {
 }
 
 function track_edit($start, $page) {
-    global $xoopsDB, $tbl, $tbr, $trackConfig;
+    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
     global $tags, $tblstyle;
     $tid = $_GET['tid'];
     $result = $xoopsDB->query("SELECT track_uri, disable FROM $tbl WHERE track_id=$tid");
@@ -133,7 +127,7 @@ function track_edit($start, $page) {
 
     $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE track_from=$tid");
     list($nrec) = $xoopsDB->fetchRow($result);
-    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$tid ORDER BY linked DESC, ref_url", $trackConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$tid ORDER BY linked DESC, ref_url", $xoopsModuleConfig['list_max'], $start);
     echo "<p>"._AM_TRACK_TARGET.": <a href='index.php'>"._AM_TRACK_LIST."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a>".
 	($disable?" - "._AM_DISABLE_MODE:"")."</p>";
     $pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=edit&tid=$tid&page=%d$opt'>(%d)</a>");
@@ -289,70 +283,18 @@ function track_disalbe() {
     exit();
 }
 
-function config_edit() {
-    global $trackConfig;
-    echo "<h4>" ._AM_TRACKBACK_CONFIG. "</h4>\n";
-
-    $cfg = dirname(dirname(__FILE__))."/cache/config.php";
-    if (!function_exists("getCache") && !is_writable($cfg)) {
-	echo "<p style='color: red;'>".sprintf(_MUSTWABLE,$cfg)."</p>\n";
-    }
-
-    echo "<form action='index.php' method='post'>\n".
-	"<table class='outer'>\n<tr class='even'><td class='head'>"._AM_TRACK_AUTOCHECK."</td><td>".
-	myradio("autocheck", array(1=>_AM_DO, 0=>_AM_DONT), $trackConfig['auto_check'])."</td></tr>\n".
-	"<tr class='odd'><td class='head'>"._AM_TRACK_BLOCKHIDE."</td><td>".
-	myradio("blockhide", array(0=>_AM_DO, 1=>_AM_DONT), $trackConfig['block_hide'])."</td></tr>\n".
-	"<tr class='even'><td class='head'>"._AM_TRACK_LIST_MAX."</td><td>".
-	"<input size='4' name='listmax' value='".$trackConfig['list_max']."' /></td></tr>\n".
-	"<tr class='odd'><td class='head'>"._AM_TRACK_TITLELEN."</td><td>".
-	"<input size='4' name='titlelen' value='".$trackConfig['title_len']."' /></td></tr>\n".
-	"<tr class='even'><td class='head'>"._AM_TRACK_CTEXTLEN."</td><td>".
-	"<input size='4' name='ctextlen' value='".$trackConfig['ctext_len']."' /></td></tr>\n".
-	"<tr class='odd'><td class='head'>"._AM_TRACK_EXPIREDAY."</td><td>".
-	"<input size='4' name='expireday' value='".$trackConfig['expire']."' /></td></tr>\n".
-	"<tr class='even'><td class='head'>"._AM_TRACK_THRESHOLD."</td><td>".
-	"<input size='4' name='threshold' value='".$trackConfig['threshold']."' /></td></tr>\n".
-	"</table>\n";
-
-    echo "<p><b>"._AM_TRACK_EXCLUDE."</b></p>\n".
-	"<textarea name='exclude' rows='5' cols='60'>".htmlspecialchars($trackConfig['exclude'])."</textarea>\n".
-	"<p><b>"._AM_TRACK_INCLUDE."</b></p>".
-	"<textarea name='include' rows='5' cols='60'>".htmlspecialchars($trackConfig['include'])."</textarea>\n".
-	"<input type='hidden' name='op' value='config_update' />\n".
-	"<p><input type='submit' value='"._SUBMIT."' /></p>\n".
-	"</form>\n";
-}
-
-function config_update() {
-    global $xoopsModule;
-    $config="global \$trackConfig;\n".
-	"\$trackConfig['exclude']=\"".crlf2nl($_POST['exclude'])."\";\n".
-	"\$trackConfig['include']=\"".crlf2nl($_POST['include'])."\";\n".
-	"\$trackConfig['auto_check']=".intval($_POST['autocheck']).";\n".
-	"\$trackConfig['block_hide']=".intval($_POST['blockhide']).";\n".
-	"\$trackConfig['list_max']=".intval($_POST['listmax']).";\n".
-	"\$trackConfig['title_len']=".intval($_POST['titlelen']).";\n".
-	"\$trackConfig['ctext_len']=".intval($_POST['ctextlen']).";\n".
-	"\$trackConfig['expire']=".intval($_POST['expireday']).";\n".
-	"\$trackConfig['threshold']=".intval($_POST['threshold']).";";
-    putCache($xoopsModule->dirname()."/config.php", $config);
-    redirect_header("index.php?op=config",1,_AM_DBUPDATED);
-    exit();
-}
-
 function expire_priod($days) {
     return time()-$days*24*3600;
 }
 
 function track_expire() {
-    global $xoopsDB, $tbl, $tbr, $trackConfig;
+    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
 
     echo "<h4>"._AM_TRACK_EXPIRED."</h4>";
     $days = isset($_POST['days'])
-	?intval($_POST['days']):$trackConfig['expire'];
+	?intval($_POST['days']):$xoopsModuleConfig['expire'];
     $threshold = isset($_POST['threshold'])
-	?intval($_POST['threshold']):$trackConfig['threshold'];
+	?intval($_POST['threshold']):$xoopsModuleConfig['threshold'];
     $linked = isset($_POST['linked'])?intval($_POST['linked']):0;
     $lcond = ($linked)?" OR linked=1":"";
     $past = expire_priod($days);
@@ -375,7 +317,7 @@ function track_expire() {
 }
 
 function commit_expire() {
-    global $xoopsDB, $tbr, $trackConfig;
+    global $xoopsDB, $tbr, $xoopsModuleConfig;
     $past = expire_priod(intval($_POST['days']));
     $lcond = intval($_POST['linked'])?" OR linked=0":"";
     $res = $xoopsDB->query("DELETE FROM $tbr WHERE mtime<$past AND nref<=".intval($_POST['threshold']).$lcond);

@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.10 2009/05/05 01:55:34 nobu Exp $
+// $Id: index.php,v 1.11 2009/07/13 07:03:10 nobu Exp $
 include("header.php");
 include_once "functions.php";
 
@@ -16,7 +16,7 @@ $tbr = $xoopsDB->prefix("trackback_ref");
 $tblstyle="border='0' cellspacing='1' cellpadding='3' class='outer' width='100%'";
 include(XOOPS_ROOT_PATH."/header.php");
 
-if (!isset($trackConfig['threshold'])) $trackConfig['threshold'] = 1;
+if (!isset($xoopsModuleConfig['threshold'])) $xoopsModuleConfig['threshold'] = 1;
 
 if ($track_id == "all") {
     $order = "nref DESC";
@@ -29,13 +29,13 @@ if ($track_id == "all") {
 	    break;
 	}
     }
-    $cond = "linked=1 AND track_id=track_from AND disable=0 AND nref>=".$trackConfig['threshold'];
+    $cond = "linked=1 AND track_id=track_from AND disable=0 AND nref>=".$xoopsModuleConfig['threshold'];
     $title = "";
     $result = $xoopsDB->query("SELECT COUNT(title) FROM $tbr,$tbl WHERE $cond");
     list($nrec) = $xoopsDB->fetchRow($result);
-    $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
+    $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
     echo "<p>"._TB_ALLPAGE."</p>\n";
-    $result = $xoopsDB->query("SELECT * FROM $tbr,$tbl WHERE $cond ORDER BY $order", $trackConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT * FROM $tbr,$tbl WHERE $cond ORDER BY $order", $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
 	$popt = ($page>1)?"&page=$page":"";
 	$ordstr = sprintf($order=="nref DESC"?"<b>%s</b>":"<a href='index.php?id=all$popt'>%s</a>",_TB_ORDER_NREF).
@@ -56,11 +56,11 @@ if ($track_id == "all") {
     }
 } elseif ( empty($track_id) ) {
     // list of tracking pages
-    $cond = "track_id=track_from AND disable=0 AND linked=1 AND nref>=".$trackConfig['threshold']." GROUP BY track_from ";
+    $cond = "track_id=track_from AND disable=0 AND linked=1 AND nref>=".$xoopsModuleConfig['threshold']." GROUP BY track_from ";
     $result = $xoopsDB->query("SELECT track_from FROM $tbl,$tbr WHERE $cond");
     $nrec = $xoopsDB->getRowsNum($result);
-    $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
-    $result = $xoopsDB->query("SELECT track_id, track_uri, COUNT(ref_id) FROM $tbl,$tbr WHERE $cond ORDER BY track_uri", $trackConfig['list_max'], $start);
+    $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
+    $result = $xoopsDB->query("SELECT track_id, track_uri, COUNT(ref_id) FROM $tbl,$tbr WHERE $cond ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
 	$pctrl = make_page_index(_TB_PAGE, $nrec, $page, " <a href='index.php?page=%d'>(%d)</a>");
 	echo $pctrl;
@@ -94,7 +94,7 @@ if ($track_id == "all") {
 	exit();
     }
 
-    $cond = "track_from=$track_id AND linked=1 AND nref>=".$trackConfig['threshold'];
+    $cond = "track_from=$track_id AND linked=1 AND nref>=".$xoopsModuleConfig['threshold'];
     if ($detail) {
 	$sql = "SELECT COUNT(ref_id) FROM $tbr WHERE $cond";
 	$result = $xoopsDB->query($sql);
@@ -104,7 +104,7 @@ if ($track_id == "all") {
 	$result = $xoopsDB->query($sql);
 	$nrec = $xoopsDB->GetRowsNum($result);
     }
-    $start = ($page>1)?($page-1)*$trackConfig['list_max']:0;
+    $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
     echo "<p>"._TB_TRACKPAGE.": <a href='index.php'>"._TB_INDEX."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a></p>\n";
     if ($detail) {			// summary by "title"
 	$sql = "SELECT * FROM $tbr WHERE $cond ORDER BY $order";
@@ -115,7 +115,7 @@ if ($track_id == "all") {
 	    " FROM $tbr WHERE $cond".
 	    " GROUP BY title ORDER BY $order";
     }
-    $result = $xoopsDB->query($sql, $trackConfig['list_max'], $start);
+    $result = $xoopsDB->query($sql, $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
 	$popt = ($page>1)?"&page=$page":"";
 	$ordstr = sprintf($order=="nref DESC"?"<b>%s</b>":"<a href='index.php?id=$track_id$popt'>%s</a>",_TB_ORDER_NREF).
