@@ -1,8 +1,8 @@
 <?php
-define("_AM_TRACKBACK_LIST", "Index das páginas de referência");
+define("_AM_REFPAGE_LIST", "Index das páginas de referência");
 define("_AM_TRACK_LIST", "Index");
-define("_AM_TRACKBACK_CHECK","Checar para a página original");
-define("_AM_TRACKBACK_PAGE", "Informação da página de referência");
+define("_AM_REFPAGE_CHECK","Checar para a página original");
+define("_AM_REFPAGE_PAGE", "Informação da página de referência");
 define("_AM_TRACK_NODATA", "Não monitorar informação");
 define("_AM_DONT", "Não fazer");
 define("_AM_DO", "Fazer");

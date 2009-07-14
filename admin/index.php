@@ -1,6 +1,6 @@
 <?php
-// trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.15 2009/07/14 03:54:50 nobu Exp $
+// refpage module for XOOPS (admin side code)
+// $Id: index.php,v 1.16 2009/07/14 05:05:48 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -13,8 +13,6 @@ $page = isset($_GET['page'])?$_GET['page']:1;
 $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
-define('TBL', $xoopsDB->prefix("trackback"));
-define('TBR', $xoopsDB->prefix("trackback_ref"));
 $tblstyle="border='0' cellspacing='1' cellpadding='3' class='outer' width='100%'";
 
 switch ($op) {
@@ -72,7 +70,7 @@ exit;
 function track_list($start, $page) {
     global $xoopsDB, $xoopsModuleConfig;
     global $tags, $tblstyle;
-    echo "<h4>"._AM_TRACKBACK_LIST."</h4>";
+    echo "<h4>"._AM_REFPAGE_LIST."</h4>";
     $mode = isset($_GET['m'])?$_GET['m']:"";
     $opt="";
     if ($mode == 'all') {
@@ -95,7 +93,7 @@ function track_list($start, $page) {
 	echo $pctrl;
 	echo "<form action='index.php' method='post'>";
 	echo "<table $tblstyle>\n";
-	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_TRACKBACK_PAGE."</th><th>"._AM_REF_SHOWS."</th><th>"._AM_REF_LINKS."</th></tr>\n";
+	echo "<tr class='bg1'><th>"._AM_DISABLE."</th><th>"._AM_REFPAGE_PAGE."</th><th>"._AM_REF_SHOWS."</th><th>"._AM_REF_LINKS."</th></tr>\n";
 	$nc = 1;
 	
 	while (list($tid, $uri, $count, $nlink, $disable) = $xoopsDB->fetchRow($result)) {
@@ -123,7 +121,7 @@ function track_edit($start, $page) {
     $tid = $_GET['tid'];
     $result = $xoopsDB->query("SELECT track_uri, disable FROM ".TBL." WHERE track_id=$tid");
     list($uri, $disable)=$xoopsDB->fetchRow($result);
-    echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_PAGE."</h4>";
+    echo "<h4 style='text-align:left;'>"._AM_REFPAGE_PAGE."</h4>";
 
     $result = $xoopsDB->query("SELECT count(ref_id) FROM ".TBR." WHERE track_from=$tid");
     list($nrec) = $xoopsDB->fetchRow($result);
@@ -189,7 +187,7 @@ function edit_update() {
 function track_check() {
     global $xoopsDB;
     global $tags, $tblstyle;
-    echo "<h4'>"._AM_TRACKBACK_CHECK."</h4>";
+    echo "<h4'>"._AM_REFPAGE_CHECK."</h4>";
     $result = $xoopsDB->query("SELECT * FROM ".TBL.",".TBR." WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
     if ($n) {

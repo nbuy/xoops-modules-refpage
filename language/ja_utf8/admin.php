@@ -1,9 +1,8 @@
 <?php
-define("_AM_TRACKBACK_LIST", "参照ページの一覧");
+define("_AM_REFPAGE_LIST", "参照ページの一覧");
 define("_AM_TRACK_LIST", "一覧");
-define("_AM_TRACKBACK_CHECK","参照元の確認");
-define("_AM_TRACKBACK_PAGE", "参照ページ情報");
-define("_AM_TRACKBACK_CONFIG", "モジュール設定");
+define("_AM_REFPAGE_CHECK","参照元の確認");
+define("_AM_REFPAGE_PAGE", "参照ページ情報");
 define("_AM_TRACK_NODATA", "データがありません");
 define("_AM_DONT", "しない");
 define("_AM_DO", "する");

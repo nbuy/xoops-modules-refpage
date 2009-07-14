@@ -1,9 +1,12 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.10 2009/07/13 07:03:10 nobu Exp $
+// $Id: functions.php,v 1.11 2009/07/14 05:05:48 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
+
+define('TBL', $xoopsDB->prefix("refpage"));
+define('TBR', $xoopsDB->prefix("refpage_ref"));
 
 function uri_to_name($uri) {
     global $uri_base, $reg_mod;

@@ -1,7 +1,7 @@
 #
-# XOOPS 1.3.x trackback SQL schema
+# XOOPS 2.0 or later refpage SQL schema
 #
-# $Id: mysql.sql,v 1.4 2009/05/05 01:55:34 nobu Exp $
+# $Id: mysql.sql,v 1.5 2009/07/14 05:05:48 nobu Exp $
 
 # --------------------------------------------------------
 
@@ -10,7 +10,7 @@
 #   handling from URI to track_id and so-on.
 #
 
-CREATE TABLE trackback (
+CREATE TABLE refpage (
   track_id int(10) unsigned NOT NULL auto_increment,
   track_uri varchar(255) NOT NULL default '',
   since int(10) unsigned NOT NULL default '0',
@@ -24,7 +24,7 @@ CREATE TABLE trackback (
 # referer of tracking 
 #
 
-CREATE TABLE trackback_ref (
+CREATE TABLE refpage_ref (
   ref_id int(10) unsigned NOT NULL auto_increment,
   since int(10) unsigned NOT NULL default '0',
   track_from int(10) unsigned NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE trackback_ref (
 # check for reload soon
 #
 
-CREATE TABLE trackback_log (
+CREATE TABLE refpage_log (
   log_id int(10) unsigned NOT NULL auto_increment,
   atime  int(10) unsigned NOT NULL default '0',
   tfrom int(10) unsigned,

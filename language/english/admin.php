@@ -1,17 +1,8 @@
 <?php
-define("_AM_TRACKBACK_LIST", "Index of reference pages");
+define("_AM_REFPAGE_LIST", "Index of reference pages");
 define("_AM_TRACK_LIST", "Index");
-define("_AM_TRACKBACK_CHECK","Check for origin page");
-define("_AM_TRACKBACK_PAGE", "Reference Page information");
-define("_AM_TRACKBACK_CONFIG", "Module Setting");
-define("_AM_TRACK_EXCLUDE", "No display link without checking");
-define("_AM_TRACK_INCLUDE", "Display link without checking");
-define("_AM_TRACK_AUTOCHECK", "Automatic origin checking");
-define("_AM_TRACK_BLOCKHIDE", "Show trackback information in block");
-define("_AM_TRACK_LIST_MAX", "Number of items in a page");
-define("_AM_TRACK_TITLELEN", "Title string length (..255)");
-define("_AM_TRACK_CTEXTLEN", "Text around link from origin page (..255)");
-define("_AM_TRACK_EXPIREDAY", "Re-checking until last access over in this days");
+define("_AM_REFPAGE_CHECK","Check for origin page");
+define("_AM_REFPAGE_PAGE", "Reference Page information");
 define("_AM_TRACK_THRESHOLD", "valid access threshold");
 define("_AM_TRACK_NODATA", "No tracking DATA");
 define("_AM_DONT", "Don't");

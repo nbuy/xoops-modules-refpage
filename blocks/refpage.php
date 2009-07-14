@@ -1,6 +1,6 @@
 <?php
-// $Id: refpage.php,v 1.13 2009/07/13 07:03:10 nobu Exp $
-function b_trackback_log_show($options) {
+// $Id: refpage.php,v 1.14 2009/07/14 05:05:48 nobu Exp $
+function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
 
     if (isset($trackConfig)) {
@@ -11,7 +11,7 @@ function b_trackback_log_show($options) {
 	$trackConfig =& $config_handler->getConfigsByCat(0, $module->getVar('mid'));
     }
 
-    // ** trackback recoding **
+    // ** refpage recoding **
 
     $ref = isset($_SERVER["HTTP_REFERER"])?$_SERVER["HTTP_REFERER"]:"";
     $uri = $_SERVER["REQUEST_URI"];
@@ -22,8 +22,8 @@ function b_trackback_log_show($options) {
     $uriq= addslashes($uri);
     $now = time();
 
-    $tbl = $xoopsDB->prefix("trackback");
-    $tbr = $xoopsDB->prefix("trackback_ref");
+    $tbl = $xoopsDB->prefix("refpage");
+    $tbr = $xoopsDB->prefix("refpage_ref");
 
     $sql = "SELECT track_id,disable FROM $tbl WHERE track_uri='$uriq'";
     $result = $xoopsDB->query($sql);
@@ -52,7 +52,7 @@ function b_trackback_log_show($options) {
 	$refq= addslashes($ref);
 	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
-	$log = $xoopsDB->prefix("trackback_log");
+	$log = $xoopsDB->prefix("refpage_log");
 	$exreg = list_to_regexp($trackConfig['exclude']);
 	$inreg = list_to_regexp($trackConfig['include']);
 	$checked = 0;
@@ -77,7 +77,7 @@ function b_trackback_log_show($options) {
 		    // get fail or expire get text
 		    if (!$checked ||
 			($now-$mtime) > $trackConfig['expire']*24*3600) {
-			list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
+			list($title, $ctext, $linked, $checked) = refpage_get_details($ref,$uri);
 			if ($checked) {	// keep old value when fail to get.
 			    $title=addslashes($title);
 			    $ctext=addslashes($ctext);
@@ -103,7 +103,7 @@ function b_trackback_log_show($options) {
 		$checked = 1;
 		$linked = 1;	// Link without check
 	    } elseif ($trackConfig['auto_check']) {
-		list($title, $ctext, $linked, $checked) = trackback_get_details($ref,$uri);
+		list($title, $ctext, $linked, $checked) = refpage_get_details($ref,$uri);
 		$title=addslashes($title);
 		$ctext=addslashes($ctext);
 	    }
@@ -115,10 +115,10 @@ function b_trackback_log_show($options) {
 	}
     }
 
-    // trackback show block build
+    // refpage show block build
 
     if (!$trackConfig['block_show']) return $block;
-    $block['title'] = _MB_TRACKBACK_TITLE;
+    $block['title'] = _MB_REFPAGE_TITLE;
     $body = "";
     if ($tid) {
 	$cond = "track_from=$tid AND linked=1 AND nref>=".$trackConfig['threshold'];
@@ -141,23 +141,23 @@ function b_trackback_log_show($options) {
 	    }
 	    $nn -= $options[0];
 	    if ($nn>0) {
-		$body .= "<div style='text-align: center;'>".sprintf(_MB_TRACKBACK_REST, $nn)."</div>\n";
+		$body .= "<div style='text-align: center;'>".sprintf(_MB_REFPAGE_REST, $nn)."</div>\n";
 	    }
 	    if (mod_allow_access($moddir)) {
 		$body .= "<div style='text-align: right'><a href='".XOOPS_URL.
 		    "/modules/$moddir/index.php?id=$tid'>".
-		    _MB_TRACKBACK_MORE."</a></div>\n";
+		    _MB_REFPAGE_MORE."</a></div>\n";
 	    }
 	}
     }
-    if ($body=="") $body = "<div>"._MB_TRACKBACK_NONE."</div>";
+    if ($body=="") $body = "<div>"._MB_REFPAGE_NONE."</div>";
     $block['content'] = $body;
     return $block;
 }
 
-function b_trackback_log_edit($options) {
-    return _MB_TRACKBACK_MAX."&nbsp;<input name='options[0]' value='".$options[0]."' /><br />\n".
-	_MB_TRACKBACK_LEN."&nbsp;<input name='options[1]' value='".$options[1]."' />\n";
+function b_refpage_log_edit($options) {
+    return _MB_REFPAGE_MAX."&nbsp;<input name='options[0]' value='".$options[0]."' /><br />\n".
+	_MB_REFPAGE_LEN."&nbsp;<input name='options[1]' value='".$options[1]."' />\n";
 }
 
 function list_to_regexp($l) {
@@ -182,7 +182,7 @@ if (!function_exists("mysubstr")) {
     }
 }
 
-function trackback_get_details($ref, $uri) {
+function refpage_get_details($ref, $uri) {
     global $trackConfig;
     $linked = 0;
     $checked = 0;
@@ -190,13 +190,7 @@ function trackback_get_details($ref, $uri) {
     $ctext = '';
 
     // includes Snoopy class for remote file access
-    if (file_exists(XOOPS_ROOT_PATH."/class/snoopy.class.php")){
-	//xoops 1.3
-	require_once(XOOPS_ROOT_PATH."/class/snoopy.class.php");
-    } else {
-	//xoops 2
-	require_once(XOOPS_ROOT_PATH."/class/snoopy.php");
-    }
+    require_once(XOOPS_ROOT_PATH."/class/snoopy.php");
     $snoopy = new Snoopy;
     //TIMEOUT
     $snoopy->read_timeout = 10;
