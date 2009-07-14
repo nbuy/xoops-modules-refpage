@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (admin side code)
-// $Id: index.php,v 1.14 2009/07/13 07:03:10 nobu Exp $
+// $Id: index.php,v 1.15 2009/07/14 03:54:50 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -13,9 +13,9 @@ $page = isset($_GET['page'])?$_GET['page']:1;
 $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
-$tbl = $xoopsDB->prefix("trackback");
-$tbr = $xoopsDB->prefix("trackback_ref");
-$tblstyle="border='0' cellspacing='1' cellpadding='3' class='bg2' width='100%'";
+define('TBL', $xoopsDB->prefix("trackback"));
+define('TBR', $xoopsDB->prefix("trackback_ref"));
+$tblstyle="border='0' cellspacing='1' cellpadding='3' class='outer' width='100%'";
 
 switch ($op) {
 case 'edit_update':
@@ -70,7 +70,7 @@ xoops_cp_footer();
 exit;
 
 function track_list($start, $page) {
-    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
+    global $xoopsDB, $xoopsModuleConfig;
     global $tags, $tblstyle;
     echo "<h4>"._AM_TRACKBACK_LIST."</h4>";
     $mode = isset($_GET['m'])?$_GET['m']:"";
@@ -87,9 +87,9 @@ function track_list($start, $page) {
 	_AM_ENTRY_VIEW." ".myselect("m", array(''=>_AM_ENTRY_ENABLE,'dis'=>_AM_ENTRY_DISABLE, 'all'=>_AM_ENTRY_ALL), $mode).
 	" <input type='submit' value='"._SUBMIT."' />\n</form>";
 
-    $result = $xoopsDB->query("SELECT track_id FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id");
+    $result = $xoopsDB->query("SELECT track_id FROM ".TBL.",".TBR." WHERE $cond track_id=track_from GROUP BY track_id");
     $nrec = $xoopsDB->getRowsNum($result);
-    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM $tbl,$tbr WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT track_id, track_uri,count(ref_id),sum(linked), disable FROM ".TBL.",".TBR." WHERE $cond track_id=track_from GROUP BY track_id ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
 	$pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=list&page=%d$opt'>(%d)</a>");
 	echo $pctrl;
@@ -118,16 +118,16 @@ function track_list($start, $page) {
 }
 
 function track_edit($start, $page) {
-    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
+    global $xoopsDB, $xoopsModuleConfig;
     global $tags, $tblstyle;
     $tid = $_GET['tid'];
-    $result = $xoopsDB->query("SELECT track_uri, disable FROM $tbl WHERE track_id=$tid");
+    $result = $xoopsDB->query("SELECT track_uri, disable FROM ".TBL." WHERE track_id=$tid");
     list($uri, $disable)=$xoopsDB->fetchRow($result);
     echo "<h4 style='text-align:left;'>"._AM_TRACKBACK_PAGE."</h4>";
 
-    $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE track_from=$tid");
+    $result = $xoopsDB->query("SELECT count(ref_id) FROM ".TBR." WHERE track_from=$tid");
     list($nrec) = $xoopsDB->fetchRow($result);
-    $result = $xoopsDB->query("SELECT * FROM $tbr WHERE track_from=$tid ORDER BY linked DESC, ref_url", $xoopsModuleConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT * FROM ".TBR." WHERE track_from=$tid ORDER BY linked DESC, ref_url", $xoopsModuleConfig['list_max'], $start);
     echo "<p>"._AM_TRACK_TARGET.": <a href='index.php'>"._AM_TRACK_LIST."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a>".
 	($disable?" - "._AM_DISABLE_MODE:"")."</p>";
     $pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=edit&tid=$tid&page=%d$opt'>(%d)</a>");
@@ -162,7 +162,7 @@ function track_edit($start, $page) {
 }
 
 function edit_update() {
-    global $xoopsDB, $tbl, $tbr;
+    global $xoopsDB;
     $tid = $_POST['tid'];
     $sets = "";
     $resets = "";
@@ -179,18 +179,18 @@ function edit_update() {
 	    $flushs = ($resets==""?"":" OR ")."ref_id=$i";
 	}
     }
-    if ($resets != "") $xoopsDB->query("UPDATE $tbr SET linked=0 WHERE ($resets) AND track_from=$tid");
-    if ($sets != "") $xoopsDB->query("UPDATE $tbr SET linked=1 WHERE ($sets) AND track_from=$tid");
-    if ($flushs != "") $xoopsDB->query("UPDATE $tbr SET mtime=1 WHERE ($sets) AND track_from=$tid");
+    if ($resets != "") $xoopsDB->query("UPDATE ".TBR." SET linked=0 WHERE ($resets) AND track_from=$tid");
+    if ($sets != "") $xoopsDB->query("UPDATE ".TBR." SET linked=1 WHERE ($sets) AND track_from=$tid");
+    if ($flushs != "") $xoopsDB->query("UPDATE ".TBR." SET mtime=1 WHERE ($sets) AND track_from=$tid");
     redirect_header("index.php?op=edit&tid=$tid",1,_AM_DBUPDATED);
     exit();
 }
 
 function track_check() {
-    global $xoopsDB, $tbl, $tbr;
+    global $xoopsDB;
     global $tags, $tblstyle;
     echo "<h4'>"._AM_TRACKBACK_CHECK."</h4>";
-    $result = $xoopsDB->query("SELECT * FROM $tbl,$tbr WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
+    $result = $xoopsDB->query("SELECT * FROM ".TBL.",".TBR." WHERE track_from=track_id AND checked=0 ORDER BY ref_id");
     $n = $xoopsDB->getRowsNum($result);
     if ($n) {
 	echo "<script>
@@ -213,6 +213,7 @@ function myCheckAll(formname, switchid, group) {
 	echo "<table $tblstyle>\n";
 	echo "<tr class='bg1'><th nowrap>"._AM_REF_CHECKED."</th><th>"._AM_REF_URL."</th></tr>\n";
 	$nc = 1;
+	$start = isset($_GET['start'])?intval($_GET['start']):0;
 	while ($data = $xoopsDB->fetchArray($result)) {
 	    $bg = $tags[($nc++ % 2)];
 	    $tid = $data['track_id'];
@@ -241,15 +242,15 @@ function myCheckAll(formname, switchid, group) {
 }
 
 function check_update() {
-    global $xoopsDB, $tbl, $tbr;
+    global $xoopsDB;
     if (isset($_POST['link'])) {
 	$cond = "";
 	foreach ($_POST['link'] as $i => $v) {
 	    if ($cond=="") $cond = "ref_id=$i";
 	    else $cond .= " OR ref_id=$i";
 	}
-	$xoopsDB->query("UPDATE $tbr SET linked=0 WHERE checked=0");
-	$xoopsDB->query("UPDATE $tbr SET linked=1 WHERE $cond");
+	$xoopsDB->query("UPDATE ".TBR." SET linked=0 WHERE checked=0");
+	$xoopsDB->query("UPDATE ".TBR." SET linked=1 WHERE $cond");
     }
     if (isset($_POST['check'])) {
 	$cond = "";
@@ -257,14 +258,14 @@ function check_update() {
 	    if ($cond=="") $cond = "ref_id=$i";
 	    else $cond .= " OR ref_id=$i";
 	}
-	$xoopsDB->query("UPDATE $tbr SET checked=1 WHERE ($cond)");
+	$xoopsDB->query("UPDATE ".TBR." SET checked=1 WHERE ($cond)");
     }
     redirect_header("index.php?op=check",1,_AM_DBUPDATED);
     exit();
 }
 
 function track_disalbe() {
-    global $xoopsDB, $tbl;
+    global $xoopsDB;
 
     $disable = isset($_POST['disable'])?$_POST['disable']:array();
     $resets = "";
@@ -273,11 +274,11 @@ function track_disalbe() {
 	if (isset($disable[$tid])) {
 	    $sets .= ($sets==""?"":" OR ")."track_id=$tid";
 	} else {
-	    $resets .= ($resets==""?"":" OR ")."track_id=$tid";
-	}
+	    $resets .= ($resets==""?"":" OR ")."track_id=$tid";	
+}
     }
-    if ($resets!="") $xoopsDB->query("UPDATE $tbl SET disable=0 WHERE $resets");
-    if ($sets!="") $xoopsDB->query("UPDATE $tbl SET disable=1 WHERE $sets");
+    if ($resets!="") $xoopsDB->query("UPDATE ".TBL." SET disable=0 WHERE $resets");
+    if ($sets!="") $xoopsDB->query("UPDATE ".TBL." SET disable=1 WHERE $sets");
     
     redirect_header("index.php".(empty($_POST['m'])?"":"?m=".$_POST['m']),1,_AM_DBUPDATED);
     exit();
@@ -288,7 +289,7 @@ function expire_priod($days) {
 }
 
 function track_expire() {
-    global $xoopsDB, $tbl, $tbr, $xoopsModuleConfig;
+    global $xoopsDB, $xoopsModuleConfig;
 
     echo "<h4>"._AM_TRACK_EXPIRED."</h4>";
     $days = isset($_POST['days'])
@@ -298,36 +299,36 @@ function track_expire() {
     $linked = isset($_POST['linked'])?intval($_POST['linked']):0;
     $lcond = ($linked)?" OR linked=1":"";
     $past = expire_priod($days);
-    $res = $xoopsDB->query("SELECT count(*) FROM $tbr WHERE mtime<$past AND nref<=$threshold$lcond");
+    $res = $xoopsDB->query("SELECT count(*) FROM ".TBR." WHERE mtime<$past AND nref<=$threshold$lcond");
     list($nrec) = $xoopsDB->fetchRow($res);
     echo "<p>".sprintf(_AM_EXPIRE_COND1, $days).
 	sprintf(_AM_EXPIRE_COND2, $threshold)."</p>";
     echo "<p>".sprintf(_AM_EXPIRE_RECORDS, $nrec)."</p>";
     echo "<form action='index.php' method='post'>
 <input type='hidden' name='op' value='expire' />
-<table>
-<tr><td>"._AM_EXPIRE_DAYS."</td><td><input type='text' size='4' name='days' value='$days' /></td></tr>
-<tr><td>"._AM_EXPIRE_REFS."</td><td><input type='text' size='4' name='threshold' value='$threshold' /></td></tr>
-<tr><td>"._AM_EXPIRE_LINK."</td><td>".
+<table class='outer'>
+<tr class='even'><td class='head'>"._AM_EXPIRE_DAYS."</td><td><input type='text' size='4' name='days' value='$days' /></td></tr>
+<tr class='odd'><td class='head'>"._AM_EXPIRE_REFS."</td><td><input type='text' size='4' name='threshold' value='$threshold' /></td></tr>
+<tr class='even'><td class='head'>"._AM_EXPIRE_LINK."</td><td>".
 	myradio("linked", array(1=>_AM_DO, 0=>_AM_DONT), $linked)."</td></tr>
-<tr><td colspan='2' align='center'><input type='submit' name='commit' value='"._DELETE."' />
+<tr class='odd'><td colspan='2' align='center'><input type='submit' name='commit' value='"._DELETE."' />
 <input type='submit' name='confirm' value='"._AM_CONFIRM."' /></td></tr>
 </table>
 </form>";
 }
 
 function commit_expire() {
-    global $xoopsDB, $tbr, $xoopsModuleConfig;
+    global $xoopsDB, $xoopsModuleConfig;
     $past = expire_priod(intval($_POST['days']));
     $lcond = intval($_POST['linked'])?" OR linked=0":"";
-    $res = $xoopsDB->query("DELETE FROM $tbr WHERE mtime<$past AND nref<=".intval($_POST['threshold']).$lcond);
-    $res = $xoopsDB->query("DELETE track_id, track_uri FROM $tbl WHERE track_id NOT IN (SELECT track_from FROM $tbr GROUP BY track_from)");
+    $res = $xoopsDB->query("DELETE FROM ".TBR." WHERE mtime<$past AND nref<=".intval($_POST['threshold']).$lcond);
+    $res = $xoopsDB->query("DELETE track_id, track_uri FROM ".TBL." WHERE track_id NOT IN (SELECT track_from FROM ".TBR." GROUP BY track_from)");
     redirect_header("index.php",1,_AM_DBUPDATED);
     exit;
  }
 
 function show_menu() {
-    global $xoopsModule, $xoopsDB, $tbr, $adminmenu;
+    global $xoopsModule, $xoopsDB, $adminmenu;
 
     include_once("menu.php");
     $base = XOOPS_URL."/modules/".$xoopsModule->dirname();
@@ -337,7 +338,7 @@ function show_menu() {
 	echo "<p> - <b><a href='$base/$link'>$title</a></b></p>\n";
     }
 
-    $result = $xoopsDB->query("SELECT count(ref_id) FROM $tbr WHERE checked=0");
+    $result = $xoopsDB->query("SELECT count(ref_id) FROM ".TBR." WHERE checked=0");
     list($ck) = $xoopsDB->fetchRow($result);
     if ($ck) {
 	echo "<p><a href='index.php?op=check'>".sprintf(_AM_UNCHECKED,$ck)."</a></p>";
