@@ -14,7 +14,6 @@ define("_MI_TRACKBACK_SMENU1","サイト全体");
 
 define("_MI_TRACKBACK_ADMENU1","参照情報の編集");
 define("_MI_TRACKBACK_ADMENU2","参照元の検査");
-define("_MI_TRACKBACK_ADMENU3","モジュール設定");
 define("_MI_TRACKBACK_ADMENU4","追跡記録の削除");
 
 //Config
