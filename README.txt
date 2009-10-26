@@ -1,3 +1,3 @@
-trackback module for XOOPS 1.3.x/2.0.x
+refpage (as trackback) module for XOOPS 2.0.x later
 
 See detail: language/<lang>/help.html

@@ -1,13 +1,14 @@
 <?php
-// $Id: refpage.php,v 1.14 2009/07/14 05:05:48 nobu Exp $
+// $Id: refpage.php,v 1.15 2009/10/26 11:46:31 nobu Exp $
 function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
+    $myts =& MyTextSanitizer::getInstance();
 
-    if (isset($trackConfig)) {
+    if (empty($trackConfig)) {
 	$config_handler =& xoops_gethandler('config');
 	$dirname = basename(dirname(dirname(__FILE__)));
 	$module_handler =& xoops_gethandler('module');
-	$module =& $module_handler->getByDirname($modversion['dirname']);
+	$module =& $module_handler->getByDirname($dirname);
 	$trackConfig =& $config_handler->getConfigsByCat(0, $module->getVar('mid'));
     }
 
@@ -137,15 +138,16 @@ function b_refpage_log_show($options) {
 		    $alt = " title='$title'";
 		    $title=mysubstr($title, 0, $l)."..";
 		}
+		$url = $myts->htmlSpecialChars($url);
 		$body .= "<a href='$url'$alt target='_blank'>$title</a> ($nref)<br/>\n";
 	    }
 	    $nn -= $options[0];
 	    if ($nn>0) {
 		$body .= "<div style='text-align: center;'>".sprintf(_MB_REFPAGE_REST, $nn)."</div>\n";
 	    }
-	    if (mod_allow_access($moddir)) {
+	    if (mod_allow_access($dirname)) {
 		$body .= "<div style='text-align: right'><a href='".XOOPS_URL.
-		    "/modules/$moddir/index.php?id=$tid'>".
+		    "/modules/$dirname/index.php?id=$tid'>".
 		    _MB_REFPAGE_MORE."</a></div>\n";
 	    }
 	}

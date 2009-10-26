@@ -16,7 +16,10 @@ define("_MI_REFPAGE_ADMENU1","Editar informações do refpage");
 define("_MI_REFPAGE_ADMENU2","Verificar a origem");
 define("_MI_REFPAGE_ADMENU4","Excluir os vencidos");
 
-//Config
+//Templates
+define("_MI_RP_INDEX_TPL","List of referenced pages");
+
+//Configs
 define("_MI_RPCF_EXCLUDE","Não mostrar link sem checagem");
 define("_MI_RPCF_EXCLUDE_DESC","Not display link without confirm");
 define("_MI_RPCF_EXCLUDE_DEF","www.google.*\nsearch.yahoo.*\nsearch.msn.*\nwww.excite.co.jp/search/\nsearch.live.com\nsearch.goo.ne.jp\nsearch.www.infoseek.co.jp\ncgi.search.biglobe.ne.jp\n209.85.175\nwww.shinobi.jp/etc/");

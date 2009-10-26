@@ -1,10 +1,8 @@
 <?php
 // refpage module for XOOPS (admin side code)
-// $Id: index.php,v 1.16 2009/07/14 05:05:48 nobu Exp $
+// $Id: index.php,v 1.17 2009/10/26 11:46:31 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
-
-$dir = $xoopsModule->dirname();
 
 $op = "";
 if ( isset($_GET['op']) ) $op = $_GET['op'];
@@ -128,7 +126,7 @@ function track_edit($start, $page) {
     $result = $xoopsDB->query("SELECT * FROM ".TBR." WHERE track_from=$tid ORDER BY linked DESC, ref_url", $xoopsModuleConfig['list_max'], $start);
     echo "<p>"._AM_TRACK_TARGET.": <a href='index.php'>"._AM_TRACK_LIST."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a>".
 	($disable?" - "._AM_DISABLE_MODE:"")."</p>";
-    $pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=edit&tid=$tid&page=%d$opt'>(%d)</a>");
+    $pctrl = make_page_index(_AM_PAGE, $nrec, $page, " <a href='index.php?op=edit&tid=$tid&page=%d'>(%d)</a>");
     echo $pctrl;
     if ($nrec) {
 	echo "<form action='index.php' method='post'>";

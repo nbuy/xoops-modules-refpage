@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.12 2009/07/14 05:05:48 nobu Exp $
+// $Id: index.php,v 1.13 2009/10/26 11:46:31 nobu Exp $
 include("header.php");
 include_once "functions.php";
 
@@ -58,23 +58,23 @@ if ($track_id == "all") {
     $result = $xoopsDB->query("SELECT track_from FROM ".TBL.",".TBR." WHERE $cond");
     $nrec = $xoopsDB->getRowsNum($result);
     $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
-    $result = $xoopsDB->query("SELECT track_id, track_uri, COUNT(ref_id) FROM ".TBL.",".TBR." WHERE $cond ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
+    $result = $xoopsDB->query("SELECT track_id AS tid, track_uri AS uri, COUNT(ref_id) AS refs FROM ".TBL.",".TBR." WHERE $cond ORDER BY track_uri", $xoopsModuleConfig['list_max'], $start);
     if ($nrec) {
-	$pctrl = make_page_index(_TB_PAGE, $nrec, $page, " <a href='index.php?page=%d'>(%d)</a>");
-	echo $pctrl;
-	echo "<table $tblstyle>\n";
-	echo "<tr class='bg1'><th>"._TB_TRACKPAGE."</th><th>"._TB_REF_SOURCE."</th></tr>\n";
-	$nc = 1;
-	while (list($tid, $uri, $refs)=$xoopsDB->fetchRow($result)) {
-	    $bg = $tags[($nc++ % 2)];
+	$xoopsOption['template_main'] = 'refpage_index.html';
+
+	$xoopsTpl->assign('page_control', make_page_index(_TB_PAGE, $nrec, $page, " <a href='index.php?page=%d'>(%d)</a>"));
+	$pages = array();
+	while ($pg=$xoopsDB->fetchArray($result)) {
 	    $start++;
-	    echo "<tr class='$bg'><td class='trackref'>$start. <a href='index.php?id=$tid'>".uri_to_name($uri)."</a></td><td style='text-align:center'>$refs</a></td></tr>\n";
+	    $pg['seq'] = $start;
+	    $pg['name'] = uri_to_name($pg['uri']);
+	    $pages[] = $pg;
 	}
-	echo "</table>\n";
-	echo $pctrl;
+	$xoopsTpl->assign('pages', $pages);
     }
 } else {
     // a tracking page
+    $xoopsOption['template_main'] = 'refpage_referer.html';
     $order = "nref DESC";
     $opt = "";
     if (isset($_GET['order'])) {
@@ -103,7 +103,11 @@ if ($track_id == "all") {
 	$nrec = $xoopsDB->GetRowsNum($result);
     }
     $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
-    echo "<p>"._TB_TRACKPAGE.": <a href='index.php'>"._TB_INDEX."</a> &gt;&gt; <a href='$uri'>".uri_to_name($uri)."</a></p>\n";
+    $breadcrumbs = array();
+    $breadcrumbs[] = array('url'=>'index.php', 'name'=>_TB_INDEX);
+    $breadcrumbs[] = array('url'=>$uri, 'name'=>uri_to_name($uri));
+    
+    $xoopsTpl->assign('xoops_breadcrumbs', $breadcrumbs);
     if ($detail) {			// summary by "title"
 	$sql = "SELECT * FROM ".TBR." WHERE $cond ORDER BY $order";
     } else {
@@ -118,12 +122,9 @@ if ($track_id == "all") {
 	$popt = ($page>1)?"&page=$page":"";
 	$ordstr = sprintf($order=="nref DESC"?"<b>%s</b>":"<a href='index.php?id=$track_id$popt'>%s</a>",_TB_ORDER_NREF).
 	    " | ".sprintf($order=="mtime DESC"?"<b>%s</b>":"<a href='index.php?id=$track_id&order=time$popt'>%s</a>",_TB_ORDER_TIME);
-	$pctrl = make_page_index("$ordstr - "._TB_PAGE, $nrec, $page, " <a href='index.php?id=$track_id$opt&page=%d'>(%d)</a>");
-	echo $pctrl;
-	echo "<table $tblstyle>\n";
-	$nc = 1;
+	$xoopsTpl->assign('page_control', make_page_index("$ordstr - "._TB_PAGE, $nrec, $page, " <a href='index.php?id=$track_id$opt&page=%d'>(%d)</a>"));
+	$referers = array();
 	while ($data=$xoopsDB->fetchArray($result)) {
-	    $bg = $tags[($nc++ % 2)];
 	    $start++;
 	    if (!$detail && $data['n']>1) {	// url list
 		$rsub = $xoopsDB->query("SELECT nref, ref_url, mtime FROM ".TBR." WHERE $cond AND title='".addslashes($data['title'])."' ORDER BY $order", 20);
@@ -137,10 +138,10 @@ if ($track_id == "all") {
 		$data["refn"] = $refn;
 		$data["ref_url"] = $refs[0];
 	    }
-	    echo "<tr class='$bg'><td class='trackitem'>$start. ".make_track_item($data)."</td></tr>\n";
+	    $data['seq'] = $start;
+	    $referers[] = $data;
 	}
-	echo "</table>\n";
-	echo $pctrl;
+	$xoopsTpl->assign('referers', $referers);
     }
 }
 include (XOOPS_ROOT_PATH."/footer.php");

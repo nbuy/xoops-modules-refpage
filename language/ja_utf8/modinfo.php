@@ -16,7 +16,11 @@ define("_MI_REFPAGE_ADMENU1","参照情報の編集");
 define("_MI_REFPAGE_ADMENU2","参照元の検査");
 define("_MI_REFPAGE_ADMENU4","追跡記録の削除");
 
-//Config
+//Templates
+define("_MI_RP_INDEX_TPL","参照元のあるページ一覧");
+define("_MI_RP_REFERER_TPL","参照元詳細一覧");
+
+//Configs
 define("_MI_RPCF_EXCLUDE","非表示にする参照元");
 define("_MI_RPCF_EXCLUDE_DESC","確認なしにリンクを非表示状態とする参照元");
 define("_MI_RPCF_EXCLUDE_DEF","www.google.*\nsearch.yahoo.*\nsearch.msn.*\nwww.excite.co.jp/search/\nsearch.live.com\nsearch.goo.ne.jp\nsearch.www.infoseek.co.jp\ncgi.search.biglobe.ne.jp\n209.85.175\nwww.shinobi.jp/etc/");
