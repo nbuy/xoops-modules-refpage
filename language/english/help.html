@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html language="en">
 <head>
-<title>Trackback module for XOOPS</title>
+<title>Refpage module for XOOPS</title>
 <style>
 td,th { padding: 4px; background: #e8e8e8;}
 h1,h2,h3 { color: #008000; }
@@ -13,7 +13,7 @@ em { color: #c00000; }
 </style>
 </head>
 <body>
-<h1>Trackback module for XOOPS</h1>
+<h1>Refpage module for XOOPS</h1>
 
 <blockquote>
 <em>In English resources may be BAD translation.  Please someone 
@@ -51,7 +51,7 @@ and Install via XOOPS module administration.
 <tr valign="top"><th><a name="note1">[*1]</a></th><td>Always need to set allow access in Block. Module access allow in your policy. </td>
 </tr>
 <tr valign="top"><th><a name="note2">[*2]</a></th><td>Block need to display. This module to records in block functions. 
-If You want hide information in block, Set "Show trackback information in block: Don't" in Module Setting.</td>
+If You want hide information in block, Set "Show referer information in block: Don't" in Module Setting.</td>
 </tr>
 </table>
 </blockquote>
@@ -92,9 +92,9 @@ sizes and/or colors. Concretely, add class in themes style.css or xoops.css in r
 
 <h2>Administration</h2>
 
-Administration in module manipulate trackback information and Setting module behavior.
+Administration in module manipulate referer information and Setting module behavior.
 
-<h3>Edit Trackback targets</h3>
+<h3>Edit Reference targets</h3>
 
   <p>Index of reference pages listed records from other pages. 
      In this page can do disable to record referer information.
@@ -106,7 +106,7 @@ Administration in module manipulate trackback information and Setting module beh
 
 <h3>Edit link information</h3>
 
-  <p>Listed link information each trackback target
+  <p>Listed link information each referer target
   page. Checkbox that is top on the item was mean link
   information are displayed when marked.</p>
 
@@ -139,10 +139,10 @@ Administration in module manipulate trackback information and Setting module beh
       <p>"Don't" will be use when only to record URL information
       in passive.</p>
 
-    <li>Show trackback information in block  [Do it]/Don't</li>
+    <li>Show referer information in block  [Do it]/Don't</li>
 
-      <p>Display trackback information in block. Default is "Do it".
-      Set "Don't" if you want total close in trackback information.</p>
+      <p>Display referer information in block. Default is "Do it".
+      Set "Don't" if you want total close in referer information.</p>
 
     <li>Number of items in a page</li>
 
@@ -187,6 +187,12 @@ href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggesti
 <a name="changes"></a><h2>Changes</h2>
 
 <dl>
+  <dd>[2009/11/01] refpage-2.0 Release
+    <ul>
+      <li>only for XOOPS 2.0 or laters (using config/template)</li>
+      <li>Rename module directry name</li>
+    </ul>
+  </dd>
   <dd>[2009/05/05] trackback-1.2 Release
     <ul>
       <li>replace name variables HTTP_*_VARS for new style</li>
@@ -208,6 +214,6 @@ href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggesti
 Nobuhiro Yasutomi <<a href="mailto:nobuhiro.yasutomi@nifty.ne.jp">nobuhiro.yasutomi@nifty.ne.jp</a><br/>
 MySite Users <a href="http://myht.org/">http://myht.org/</a>
 </address>
-<p>$Id: help.html,v 1.13 2009/07/13 07:03:10 nobu Exp $</p>
+<p>$Id: help.html,v 1.14 2009/10/31 10:15:55 nobu Exp $</p>
 </body>
 </html>
