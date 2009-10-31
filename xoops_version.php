@@ -1,5 +1,5 @@
 <?php
-// $Id: xoops_version.php,v 1.16 2009/10/26 11:46:31 nobu Exp $
+// $Id: xoops_version.php,v 1.17 2009/10/31 10:05:53 nobu Exp $
 $modversion =
     array('name' => _MI_REFPAGE_NAME,
 	  'version' => "1.92",
@@ -22,6 +22,9 @@ $modversion['tables'][] = "refpage";
 $modversion['tables'][] = "refpage_ref";
 $modversion['tables'][] = "refpage_log";
 
+// OnUpdate - upgrade DATABASE
+$modversion['onInstall'] = "oninstall.php";
+
 // Admin things
 $modversion['hasAdmin'] = 1;
 $modversion['adminindex'] = "admin/index.php";
@@ -41,7 +44,6 @@ $modversion['blocks'][1] =
 	  'show_func' => "b_refpage_log_show",
 	  'edit_func' => "b_refpage_log_edit",
 	  'template' => "refpage_block_menu.html",
-	  'can_clone' => true,
 	  // Show Referer|Lists|Strict Check
 	  'options' => "8|18");
 
@@ -49,6 +51,7 @@ $modversion['blocks'][1] =
 $modversion['hasMain'] = 1;
 $modversion['sub'][] = array('name' => _MI_REFPAGE_SMENU1,
 			     'url' => "index.php?id=all");
+
 
 // Config
 $modversion['hasconfig'] = 1;

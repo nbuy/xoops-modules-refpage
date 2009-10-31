@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.15 2009/10/26 11:46:31 nobu Exp $
+// $Id: refpage.php,v 1.16 2009/10/31 10:05:53 nobu Exp $
 function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
     $myts =& MyTextSanitizer::getInstance();
@@ -20,13 +20,13 @@ function b_refpage_log_show($options) {
     $uri = preg_replace('|^(/modules/mydownloads/singlefile\.php\?)cid=\d+&|', '$1', $uri);
     $uri = preg_replace('/[&\?]?PHPSESSID=[^&]*/', '', $uri);
     $uri = preg_replace('/[&\?]?easiestml_lang=(ja|en)/', '', $uri);
-    $uriq= addslashes($uri);
+    $uriq= $xoopsDB->quoteString($uri);
     $now = time();
 
     $tbl = $xoopsDB->prefix("refpage");
     $tbr = $xoopsDB->prefix("refpage_ref");
 
-    $sql = "SELECT track_id,disable FROM $tbl WHERE track_uri='$uriq'";
+    $sql = "SELECT track_id,disable FROM $tbl WHERE track_uri=$uriq";
     $result = $xoopsDB->query($sql);
     // referere self site, 2nd will be fake referer (Robots?).
     if (preg_match("/^".preg_quote(XOOPS_URL,"/")."\//", $ref)) $ref="";
@@ -37,7 +37,7 @@ function b_refpage_log_show($options) {
     } else {
 	// new page register
 	if ($ref!="") {
-	    $xoopsDB->queryF("INSERT INTO $tbl(track_uri, since) VALUES('$uriq', $now)");
+	    $xoopsDB->queryF("INSERT INTO $tbl(track_uri, since) VALUES($uriq, $now)");
 	    $result = $xoopsDB->query($sql);
 	    list($tid, $disable) = $xoopsDB->fetchRow($result);
 	} else {
@@ -50,8 +50,8 @@ function b_refpage_log_show($options) {
     if ($disable) return $block; // disable in this page
 
     if ($tid && !empty($ref)) {
-	$refq= addslashes($ref);
-	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url='$refq' AND track_from=$tid");
+	$refq= $xoopsDB->quoteString($ref);
+	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url=$refq AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
 	$log = $xoopsDB->prefix("refpage_log");
 	$exreg = list_to_regexp($trackConfig['exclude']);
@@ -80,9 +80,9 @@ function b_refpage_log_show($options) {
 			($now-$mtime) > $trackConfig['expire']*24*3600) {
 			list($title, $ctext, $linked, $checked) = refpage_get_details($ref,$uri);
 			if ($checked) {	// keep old value when fail to get.
-			    $title=addslashes($title);
-			    $ctext=addslashes($ctext);
-			    $xoopsDB->queryF("UPDATE $tbr SET checked=$checked, linked=$linked, title='$title', context='$ctext' WHERE ref_id=$rid");
+			    $title=$xoopsDB->quoteString($title);
+			    $ctext=$xoopsDB->quoteString($ctext);
+			    $xoopsDB->queryF("UPDATE $tbr SET checked=$checked, linked=$linked, title=$title, context=$ctext WHERE ref_id=$rid");
 			}
 		    }
 		}
@@ -105,10 +105,10 @@ function b_refpage_log_show($options) {
 		$linked = 1;	// Link without check
 	    } elseif ($trackConfig['auto_check']) {
 		list($title, $ctext, $linked, $checked) = refpage_get_details($ref,$uri);
-		$title=addslashes($title);
-		$ctext=addslashes($ctext);
+		$title=$xoopsDB->quoteString($title);
+		$ctext=$xoopsDB->quoteString($ctext);
 	    }
-	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title='$title', context='$ctext', mtime='$now' WHERE track_from=$tid AND ref_url='$refq'");
+	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title=$title, context=$ctext, mtime='$now' WHERE track_from=$tid AND ref_url='$refq'");
 	    $result = $xoopsDB->query("SELECT ref_id FROM $tbr WHERE track_from=$tid AND ref_url='$refq'");
 	    list($rid) = $xoopsDB->fetchRow($result);
 	    $xoopsDB->queryF("INSERT INTO $log(atime, tfrom, rfrom, ip) VALUES($now, $tid, $rid, '$ip')");
@@ -123,32 +123,33 @@ function b_refpage_log_show($options) {
     $body = "";
     if ($tid) {
 	$cond = "track_from=$tid AND linked=1 AND nref>=".$trackConfig['threshold'];
-	$result = $xoopsDB->query($sql="SELECT SUM(nref) nref, MIN(ref_url), title FROM $tbr WHERE $cond GROUP BY title ORDER BY nref DESC");
-	$nn = $xoopsDB->getRowsNum($result);
-	if ($nn) {
-	    $n=$options[0];
-	    $l=$options[1];
-	    while ($n-- &&
-		   list($nref, $url, $title)=$xoopsDB->fetchRow($result)) {
+	$max=$options[0];
+	$trim=$options[1];
+	$result = $xoopsDB->query($sql="SELECT SUM(nref) nref, MIN(ref_url) url, title FROM $tbr WHERE $cond GROUP BY title ORDER BY nref DESC");
+	$rows = array();
+	$nrec = $xoopsDB->getRowsNum($result);
+	if ($nrec) {
+	    $n = $max;
+	    while ($n-- && $data =$xoopsDB->fetchArray($result)) {
+		$title = $data['title'];
 		if ($title=="") {
-		    $title = preg_replace('/\/.*$/', '', preg_replace('/^https?:\/\//', '', $url));
+		    $title = preg_replace('/\/.*$/', '', preg_replace('/^https?:\/\//', '', $data['url']));
 		}
 	        $alt = "";
-		if (strlen($title)>$l) {
-		    $alt = " title='$title'";
-		    $title=mysubstr($title, 0, $l)."..";
+		if (strlen($title)>$trim) {
+		    $data['alt'] = " title='$title'";
+		    $title=mysubstr($title, 0, $trim)."..";
 		}
-		$url = $myts->htmlSpecialChars($url);
-		$body .= "<a href='$url'$alt target='_blank'>$title</a> ($nref)<br/>\n";
+		$data['title'] = $title;
+		$data['url'] = htmlspecialchars($data['url']);
+		$rows[] = $data;
 	    }
-	    $nn -= $options[0];
-	    if ($nn>0) {
-		$body .= "<div style='text-align: center;'>".sprintf(_MB_REFPAGE_REST, $nn)."</div>\n";
+	    $block['rows']=&$rows;
+	    if ($nrec>$max) {
+		$block['rest'] = sprintf(_MB_REFPAGE_REST, $nrec-$max);
 	    }
 	    if (mod_allow_access($dirname)) {
-		$body .= "<div style='text-align: right'><a href='".XOOPS_URL.
-		    "/modules/$dirname/index.php?id=$tid'>".
-		    _MB_REFPAGE_MORE."</a></div>\n";
+		$block['more'] = XOOPS_URL."/modules/$dirname/index.php?id=$tid'>";
 	    }
 	}
     }
@@ -176,8 +177,8 @@ function list_to_regexp($l) {
 // duplicate in ../function.php - umm..
 if (!function_exists("mysubstr")) {
     function mysubstr($s, $f, $l) {
-	if (function_exists("mb_strcut")) {
-	    return mb_strcut($s, $f, $l, 'utf-8');
+	if (function_exists("mb_strstr")) {
+	    return mb_strcut($s, $f, $l, _CHARSET);
 	} else {
 	    return substr($s, $f, $l);
 	}
@@ -247,19 +248,13 @@ function refpage_get_details($ref, $uri) {
 
 function mod_allow_access($dirname) {
     global $xoopsUser;
-    if (preg_match("/^XOOPS (2|Cube Legacy)/",XOOPS_VERSION)) {
-	$modhandler =& xoops_gethandler('module');
-	$mod =& $modhandler->getByDirname($dirname);
-	$handler =& xoops_gethandler('groupperm');
-	return (!empty($xoopsUser) &&
-		$handler->checkRight("module_read", $mod->getVar("mid"), $xoopsUser->getGroups())) ||
-	    $handler->checkRight("module_read", $mod->getVar("mid"), XOOPS_GROUP_ANONYMOUS);
-    } else {
-	$mod = XoopsModule::getByDirname($dirname);
-	return (!empty($xoopsUser) &&
-		XoopsGroup::checkRight("module", $mod->mid(), $xoopsUser->groups())) ||
-	    XoopsGroup::checkRight("module", $mod->mid(), 0);
-    }
+
+    $modhandler =& xoops_gethandler('module');
+    $mod =& $modhandler->getByDirname($dirname);
+    $handler =& xoops_gethandler('groupperm');
+    return (!empty($xoopsUser) &&
+	    $handler->checkRight("module_read", $mod->getVar("mid"), $xoopsUser->getGroups())) ||
+	$handler->checkRight("module_read", $mod->getVar("mid"), XOOPS_GROUP_ANONYMOUS);
 }
 
 ?>
