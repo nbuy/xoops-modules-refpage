@@ -1,0 +1,10 @@
+<{$page_control}>
+<{if $pages}>
+  <table border="0" cellspacing="1" cellpadding="3" class="outer" width="100%">
+  <tr><th><{$smarty.const._TB_TRACKPAGE}></th><th><{$smarty.const._TB_REF_SOURCE}></th></tr>
+  <{foreach item=page from=$pages}>
+    <tr class="<{cycle values="even, odd"}>"><td class="trackref"><{$page.seq}>. <a href="index.php?id=<{$page.tid}>"><{$page.name}></a></td><td style="text-align:center"><{$page.refs}></a></td></tr>
+  <{/foreach}>
+  </table>
+<{/if}>
+<{$page_control}>
