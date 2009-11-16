@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.16 2009/10/31 10:05:53 nobu Exp $
+// $Id: refpage.php,v 1.17 2009/11/16 08:19:14 nobu Exp $
 function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
     $myts =& MyTextSanitizer::getInstance();
@@ -120,7 +120,6 @@ function b_refpage_log_show($options) {
 
     if (!$trackConfig['block_show']) return $block;
     $block['title'] = _MB_REFPAGE_TITLE;
-    $body = "";
     if ($tid) {
 	$cond = "track_from=$tid AND linked=1 AND nref>=".$trackConfig['threshold'];
 	$max=$options[0];
@@ -149,12 +148,10 @@ function b_refpage_log_show($options) {
 		$block['rest'] = sprintf(_MB_REFPAGE_REST, $nrec-$max);
 	    }
 	    if (mod_allow_access($dirname)) {
-		$block['more'] = XOOPS_URL."/modules/$dirname/index.php?id=$tid'>";
+		$block['more'] = XOOPS_URL."/modules/$dirname/index.php?id=$tid";
 	    }
 	}
     }
-    if ($body=="") $body = "<div>"._MB_REFPAGE_NONE."</div>";
-    $block['content'] = $body;
     return $block;
 }
 
@@ -177,7 +174,7 @@ function list_to_regexp($l) {
 // duplicate in ../function.php - umm..
 if (!function_exists("mysubstr")) {
     function mysubstr($s, $f, $l) {
-	if (function_exists("mb_strstr")) {
+	if (function_exists("mb_strcut")) {
 	    return mb_strcut($s, $f, $l, _CHARSET);
 	} else {
 	    return substr($s, $f, $l);

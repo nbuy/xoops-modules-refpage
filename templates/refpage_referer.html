@@ -1,15 +1,28 @@
+<{if $xoops_breadcrumbs}>
+    <!-- show xoops_breadcrumbs -->
+  <p class="rp_title">
+  <{foreach from=$xoops_breadcrumbs item=crumb name=bread}>
+    <{if $crumb.url}>
+      <a href="<{$crumb.url}>"><{$crumb.name}></a>
+    <{else}>
+      <b><{$crumb.name}></b>
+    <{/if}>
+  <{if !$smarty.foreach.bread.last}>&nbsp;&gt;&nbsp;<{/if}>
+  <{/foreach}>
+  </p>
+<{/if}>
 <{$page_control}>
   <table border="0" cellspacing="1" cellpadding="3" class="outer" width="100%">
   <{foreach item=ref from=$referers}>
     <tr class="<{cycle values="even, odd"}>">
       <td class="trackitem">
 	<{$ref.seq}>.
-	<a href="<{$ref.url}>"$alt $attr class="trtitle"><{$ref.title}></a><{$ref.add}>
+	<a href="<{$ref.ref_url}>"$alt $attr class="trtitle"><{$ref.title}></a><{$ref.add}>
 	<div class="trtext"><{if $ref.context}><{$smarty.const._TB_LEADER}><{$ref.context}><{$smarty.const._TB_LEADER}><{/if}></div>
 	<div class="trinfo">
 	<{$smarty.const._TB_REF_COUNT}>:<{$ref.nref}>
 	    [<{$smarty.const._TB_REF_CDATE}> <{$ref.cdate}>]
-	    [<{$smarty.const._TB_REF_MDATE}> <{$ref.$mdate}>]<br/>
+	    [<{$smarty.const._TB_REF_MDATE}> <{$ref.mdate}>]<br/>
 	<{$smarty.const._TB_REF_URL}>
 	 <a href="<{$ref.ref_url}>"><{$ref.ref_url|escape}></a></div>
 	<{if $ref.refs}>
