@@ -22,7 +22,7 @@
 	<div class="trinfo">
 	<{$smarty.const._TB_REF_COUNT}>:<{$ref.nref}>
 	    [<{$smarty.const._TB_REF_CDATE}> <{$ref.cdate}>]
-	    [<{$smarty.const._TB_REF_MDATE}> <{$ref.mdate}>]<br/>
+	    <{if $ref.mtime>60}>[<{$smarty.const._TB_REF_MDATE}> <{$ref.mdate}>]<{/if}><br/>
 	<{$smarty.const._TB_REF_URL}>
 	 <a href="<{$ref.ref_url}>"><{$ref.ref_url|escape}></a></div>
 	<{if $ref.refs}>

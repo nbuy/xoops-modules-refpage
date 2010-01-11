@@ -1,6 +1,6 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.11 2009/07/14 05:05:48 nobu Exp $
+// $Id: functions.php,v 1.12 2010/01/11 10:39:37 nobu Exp $
 
 $uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
 $reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
@@ -76,43 +76,6 @@ function make_page_index($title, $max, $cur, $format, $asis=" <b>[%d]</b>") {
 // Win/Mac/Unix's newline normalize
 function crlf2nl($s) {
     return preg_replace("/\x0D\x0A|\x0D|\x0A/","\n", $s);
-}
-
-function make_track_item($data, $add="", $attr="target='_blank'") {
-    global $xoopsModuleConfig;
-    $cdate = formatTimestamp($data['since'], "m");
-    $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
-    $url = $data['ref_url'];
-    $nref = $data['nref'];
-    $nurl = "";
-    if (isset($data['refs'])) {
-	$nurl = _TB_REF_NURL.": ".$data['n'];
-	$refn = $data["refn"];
-	foreach ($data["refs"] as $ref) {
-	    $nurl .= " <a href='$ref'>[".array_shift($refn)."]</a>";
-	}
-	$nurl = "<div class='trinfo'>$nurl</div>";
-    }
-    $title = $data['title'];
-    $len = max($xoopsModuleConfig['title_len'],255);
-    $alt = "";
-    if ($title == '') $title = strim(myurldecode($url), $len);
-    elseif (strlen($title)>$len) {
-	$alt = " title='$title'";
-	$title=mysubstr($title, 0, $len-2)."..";
-    }
-    if ($data['context'] != '') {
-	$ctext = _TB_LEADER.preg_replace(array('/&lt;u&gt;/', '/&lt;\\/u&gt;/'), array("<u class='anc'>", "</u>"), htmlspecialchars($data['context']))._TB_LEADER;
-    } else {
-	$ctext = "";
-    }
-    return "<a href='$url'$alt $attr class='trtitle'>$title</a>$add".
-	"<div class='trtext'>$ctext</div>".
-	"<div class='trinfo'>".
-	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
-		_TB_REF_MDATE." $mdate]<br/>"._TB_REF_URL.
-	" <a href='$url'>".myurldecode($url)."</a></div>".
-	$nurl;
 }
 
 $tags = preg_match("/^XOOPS 1\\./",XOOPS_VERSION)?array("bg1","bg3"):array("even","odd");

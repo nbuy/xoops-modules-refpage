@@ -1,8 +1,8 @@
 <?php
-// $Id: xoops_version.php,v 1.18 2009/10/31 10:15:55 nobu Exp $
+// $Id: xoops_version.php,v 1.19 2010/01/11 10:39:37 nobu Exp $
 $modversion =
     array('name' => _MI_REFPAGE_NAME,
-	  'version' => "1.93",
+	  'version' => "1.94",
 	  'description' => _MI_REFPAGE_DESC,
 	  'author' => "Nobuhiro Yasutomi ( http://myht.org/ )",
 	  'credits' => "Nobuhiro Yasutomi",

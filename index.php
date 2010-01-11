@@ -1,6 +1,6 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.14 2009/11/16 08:19:14 nobu Exp $
+// $Id: index.php,v 1.15 2010/01/11 10:39:37 nobu Exp $
 include("header.php");
 include_once "functions.php";
 
@@ -52,6 +52,7 @@ if ($track_id == "all") {
 	    $data['mdate'] = formatTimestamp($data['mtime'], "m");
 	    $uri = $data['track_uri'];
 	    $linkto = " "._TB_LINKTO." <a href='$uri'>".uri_to_name($uri)."</a>";
+	    if (empty($data['title'])) $data['title'] = myurldecode($data['ref_url']);
 	    $referers[] = $data;
 	}
 	$xoopsTpl->assign('referers', $referers);
@@ -142,6 +143,7 @@ if ($track_id == "all") {
 		$data["refn"] = $refn;
 		$data["ref_url"] = $refs[0];
 	    }
+	    if (empty($data['title'])) $data['title'] = myurldecode($data['ref_url']);
 	    $referers[] = $data;
 	}
 	$xoopsTpl->assign('referers', $referers);

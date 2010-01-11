@@ -1,6 +1,6 @@
 <?php
 // refpage module for XOOPS (admin side code)
-// $Id: index.php,v 1.17 2009/10/26 11:46:31 nobu Exp $
+// $Id: index.php,v 1.18 2010/01/11 10:39:37 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -358,5 +358,42 @@ function myselect($name, $value, $def) {
 	$body .= "<option value='$i'$ck>$v</option>\n";
     }
     return $body."</select>";
+}
+
+function make_track_item($data, $add="", $attr="target='_blank'") {
+    global $xoopsModuleConfig;
+    $cdate = formatTimestamp($data['since'], "m");
+    $mdate = ($data['mtime']>10)?formatTimestamp($data['mtime'], "m"):_TB_WAIT_UPDATE;
+    $url = $data['ref_url'];
+    $nref = $data['nref'];
+    $nurl = "";
+    if (isset($data['refs'])) {
+	$nurl = _TB_REF_NURL.": ".$data['n'];
+	$refn = $data["refn"];
+	foreach ($data["refs"] as $ref) {
+	    $nurl .= " <a href='$ref'>[".array_shift($refn)."]</a>";
+	}
+	$nurl = "<div class='trinfo'>$nurl</div>";
+    }
+    $title = $data['title'];
+    $len = max($xoopsModuleConfig['title_len'],255);
+    $alt = "";
+    if ($title == '') $title = strim(myurldecode($url), $len);
+    elseif (strlen($title)>$len) {
+	$alt = " title='$title'";
+	$title=mysubstr($title, 0, $len-2)."..";
+    }
+    if ($data['context'] != '') {
+	$ctext = _TB_LEADER.preg_replace(array('/&lt;u&gt;/', '/&lt;\\/u&gt;/'), array("<u class='anc'>", "</u>"), htmlspecialchars($data['context']))._TB_LEADER;
+    } else {
+	$ctext = "";
+    }
+    return "<a href='$url'$alt $attr class='trtitle'>$title</a>$add".
+	"<div class='trtext'>$ctext</div>".
+	"<div class='trinfo'>".
+	_TB_REF_COUNT.":$nref ["._TB_REF_CDATE." $cdate] [".
+		_TB_REF_MDATE." $mdate]<br/>"._TB_REF_URL.
+	" <a href='$url'>".myurldecode($url)."</a></div>".
+	$nurl;
 }
 ?>

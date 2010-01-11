@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.17 2009/11/16 08:19:14 nobu Exp $
+// $Id: refpage.php,v 1.18 2010/01/11 10:39:37 nobu Exp $
 function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
     $myts =& MyTextSanitizer::getInstance();
@@ -205,11 +205,12 @@ function refpage_get_details($ref, $uri) {
 	if (XOOPS_USE_MULTIBYTES && function_exists("mb_convert_encoding")) {
 	    $page = mb_convert_encoding($page, _CHARSET, "ISO-2022-JP,JIS,EUC-JP,UTF-8,Shift_JIS");
 	}
-	if (preg_match("/<title>(.*)<\/title>/i", $page, $d)) {
+	$pat = "/<title[^>]*>(.*)<\/title>/i";
+	if (preg_match($pat, $page, $d)) {
 	    $title = $d[1];
 	    $len = 255;
 	    if (strlen($title)>$len) $title=mysubstr($title, 0, $len-2)."..";
-	    $page = preg_replace("/<title>(.*)<\/title>/i", "", $page);
+	    $page = preg_replace($pat, "", $page);
 	}
 	$anc = "/<a\\s+href=([\"'])?".preg_quote(XOOPS_URL.$uri,"/")."\\1(>|\s[^>]*>)/i";
 	$root = "/<a\\s+href=([\"']?)".preg_quote(XOOPS_URL."/","/")."\\1(>|\s[^>]*>)/i";
