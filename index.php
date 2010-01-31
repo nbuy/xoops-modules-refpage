@@ -1,13 +1,13 @@
 <?php
 // trackback module for XOOPS (user side code)
-// $Id: index.php,v 1.15 2010/01/11 10:39:37 nobu Exp $
+// $Id: index.php,v 1.16 2010/01/31 06:04:36 nobu Exp $
 include("header.php");
 include_once "functions.php";
 
 $base = XOOPS_URL."/modules/".$xoopsModule->dirname();
 $basedir = XOOPS_ROOT_PATH."/modules/".$xoopsModule->dirname();
 
-$track_id =isset($_GET['id'])?intval($_GET['id']):"";
+$track_id = isset($_GET['id'])&&$_GET['id']!="all"?intval($_GET['id']):"all";
 $page = isset($_GET['page'])?intval($_GET['page']):1;
 $detail = isset($_GET['detail']);
 
@@ -15,11 +15,11 @@ $tblstyle="border='0' cellspacing='1' cellpadding='3' class='outer' width='100%'
 include(XOOPS_ROOT_PATH."/header.php");
 
 $breadcrumbs = array();
-$breadcrumbs[] = array('url'=>'index.php', 'name'=>_TB_INDEX);
+$breadcrumbs[] = array('url'=>'index.php?id=list', 'name'=>_TB_INDEX);
 
 if (!isset($xoopsModuleConfig['threshold'])) $xoopsModuleConfig['threshold'] = 1;
 
-if ($track_id == "all") {
+if ($track_id === "all") {
     $xoopsOption['template_main'] = 'refpage_referer.html';
     $order = "nref DESC";
     $opt = "";
@@ -50,8 +50,7 @@ if ($track_id == "all") {
 	    $data['seq'] = ++$start;
 	    $data['cdate'] = formatTimestamp($data['since'], "m");
 	    $data['mdate'] = formatTimestamp($data['mtime'], "m");
-	    $uri = $data['track_uri'];
-	    $linkto = " "._TB_LINKTO." <a href='$uri'>".uri_to_name($uri)."</a>";
+	    $data['linkto'] = uri_to_name($data['track_uri']);
 	    if (empty($data['title'])) $data['title'] = myurldecode($data['ref_url']);
 	    $referers[] = $data;
 	}

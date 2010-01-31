@@ -1,21 +1,20 @@
 <?php
 // module local use functions
-// $Id: functions.php,v 1.12 2010/01/11 10:39:37 nobu Exp $
-
-$uri_base = preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/";
-$reg_mod = "/^".preg_quote($uri_base."modules/", "/").'([^\/]+)\//';
+// $Id: functions.php,v 1.13 2010/01/31 06:04:36 nobu Exp $
 
 define('TBL', $xoopsDB->prefix("refpage"));
 define('TBR', $xoopsDB->prefix("refpage_ref"));
 
+define('URI_BASE', preg_replace('/^http:\/\/[^\/]*/', '', XOOPS_URL)."/");
+define('REG_MOD', "/^".preg_quote(URI_BASE."modules/", "/").'([^\/]+)\//');
+
 function uri_to_name($uri) {
-    global $uri_base, $reg_mod;
-    if ($uri==$uri_base) return _TB_TOPPAGE;
-    if (preg_match($reg_mod, $uri, $d)) {
+    if ($uri==URI_BASE) return _TB_TOPPAGE;
+    if (preg_match(REG_MOD, $uri, $d)) {
 	// module pages
 	$mod = XoopsModule::getByDirname($d[1]);
-	$name = is_object($mod)?$mod->name():$d[1];
-	$rest = myurldecode(preg_replace($reg_mod, '', $uri));
+	$name = is_object($mod)?$mod->getVar("name"):$d[1];
+	$rest = myurldecode(preg_replace(REG_MOD, '', $uri));
 	$rest = str_replace("index.php?","",$rest);
 	return $name.($rest==""?"":" - ").$rest;
     }

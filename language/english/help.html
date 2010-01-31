@@ -46,35 +46,16 @@ and Install via XOOPS module administration.
    <li>Allow access permission in "Register Users" and "Anonymous Users" in Group Administration [<a href="#note1">*1</a>]</li>
    <li>Set to position and display in Block Administration [<a href="#note2">*2</a>]</li>
 </ol>
-<blockquote>
-<table width="90%">
-<tr valign="top"><th><a name="note1">[*1]</a></th><td>Always need to set allow access in Block. Module access allow in your policy. </td>
-</tr>
-<tr valign="top"><th><a name="note2">[*2]</a></th><td>Block need to display. This module to records in block functions. 
-If You want hide information in block, Set "Show referer information in block: Don't" in Module Setting.</td>
-</tr>
-</table>
-</blockquote>
+<dl>
+    <dt><a name="note1">[*1]</a></dt>
+    <dd>Always need to set allow access in Block. Module access allow in your policy. </dd>
+
+    <dt><a name="note2">[*2]</a></dt>
+    <dd>Block need to display. This module to records in block functions. 
+If You want hide information in block, Set "Show referer information in block: Don't" in Module Setting.</dd>
+</dl>
 
 Set above finished, after to work automatic.
-
-<h2>Notice to install</h2>
-
-When use with XOOPS 1.3.x, and Headline module to active, please fix following:
-
-<pre>
---- class/phpsyndication.lib.php	21 Aug 2003 16:23:19 -0000	1.7
-+++ class/phpsyndication.lib.php	5 Dec 2003 12:30:21 -0000
-@@ -71,7 +71,7 @@
- 	/**
- 	 * includes Snoopy class for remote file access
- 	 */
--	require(XOOPS_ROOT_PATH."/class/snoopy.class.php");
-+	require_once(XOOPS_ROOT_PATH."/class/snoopy.class.php");
- 
- 	class RSStoHTML
- 	{
-</pre>
 
 <h2>Stylesheet</h2>
 
@@ -187,6 +168,13 @@ href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggesti
 <a name="changes"></a><h2>Changes</h2>
 
 <dl>
+  <dd>[2010/01/31] refpage 1.95 (2.0β2)
+    <ul>
+      <li>Add URI filter at admin page</li>
+      <li>Add about in admin menu</li>
+      <li>Fix referer store bugs</li>
+    </ul>
+  </dd>
   <dd>[2009/01/11] refpage 1.94 (2.0beta)
     <ul>
       <li>only for XOOPS 2.0 or laters (using config/template)</li>
@@ -214,6 +202,6 @@ href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggesti
 Nobuhiro Yasutomi <<a href="mailto:nobuhiro.yasutomi@nifty.ne.jp">nobuhiro.yasutomi@nifty.ne.jp</a><br/>
 MySite Users <a href="http://myht.org/">http://myht.org/</a>
 </address>
-<p>$Id: help.html,v 1.16 2010/01/11 12:10:14 nobu Exp $</p>
+<p>$Id: help.html,v 1.17 2010/01/31 06:04:36 nobu Exp $</p>
 </body>
 </html>

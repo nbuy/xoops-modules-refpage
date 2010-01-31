@@ -10,11 +10,12 @@ define("_MI_REFPAGE_DESC","ページのリンク参照の記録と表示を行�
 // Names of blocks for this module (Not all module has blocks)
 define("_MI_REFPAGE_BNAME","参照元情報");
 
-define("_MI_REFPAGE_SMENU1","サイト全体");
+define("_MI_REFPAGE_SMENU1","ページ一覧");
 
 define("_MI_REFPAGE_ADMENU1","参照情報の編集");
 define("_MI_REFPAGE_ADMENU2","参照元の検査");
 define("_MI_REFPAGE_ADMENU4","追跡記録の削除");
+define("_MI_REFPAGE_ABOUT","refpage について");
 
 //Templates
 define("_MI_RP_INDEX_TPL","参照元のあるページ一覧");

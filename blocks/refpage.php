@@ -1,5 +1,5 @@
 <?php
-// $Id: refpage.php,v 1.18 2010/01/11 10:39:37 nobu Exp $
+// $Id: refpage.php,v 1.19 2010/01/31 06:04:36 nobu Exp $
 function b_refpage_log_show($options) {
     global $xoopsDB, $trackConfig;
     $myts =& MyTextSanitizer::getInstance();
@@ -9,7 +9,7 @@ function b_refpage_log_show($options) {
 	$dirname = basename(dirname(dirname(__FILE__)));
 	$module_handler =& xoops_gethandler('module');
 	$module =& $module_handler->getByDirname($dirname);
-	$trackConfig =& $config_handler->getConfigsByCat(0, $module->getVar('mid'));
+	$trackConfig = $config_handler->getConfigsByCat(0, $module->getVar('mid'));
     }
 
     // ** refpage recoding **
@@ -94,7 +94,7 @@ function b_refpage_log_show($options) {
 	} else {
 	    // new register
 	    $xoopsDB->queryF("INSERT INTO $tbr(since,track_from,ref_url)".
-			     " VALUES($now, $tid, '$refq')");
+			     " VALUES($now, $tid, $refq)");
 	    // check origin page, there is link exist?
 	    $title = '';
 	    $ctext = '';
@@ -108,8 +108,8 @@ function b_refpage_log_show($options) {
 		$title=$xoopsDB->quoteString($title);
 		$ctext=$xoopsDB->quoteString($ctext);
 	    }
-	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title=$title, context=$ctext, mtime='$now' WHERE track_from=$tid AND ref_url='$refq'");
-	    $result = $xoopsDB->query("SELECT ref_id FROM $tbr WHERE track_from=$tid AND ref_url='$refq'");
+	    $xoopsDB->queryF("UPDATE $tbr SET nref=nref+1, checked=$checked, linked=$linked, title=$title, context=$ctext, mtime='$now' WHERE track_from=$tid AND ref_url=$refq");
+	    $result = $xoopsDB->query("SELECT ref_id FROM $tbr WHERE track_from=$tid AND ref_url=$refq");
 	    list($rid) = $xoopsDB->fetchRow($result);
 	    $xoopsDB->queryF("INSERT INTO $log(atime, tfrom, rfrom, ip) VALUES($now, $tid, $rid, '$ip')");
 	    $refno = 1;
@@ -173,10 +173,12 @@ function list_to_regexp($l) {
 // substrings with support multibytes (--with-mbstring)
 // duplicate in ../function.php - umm..
 if (!function_exists("mysubstr")) {
-    function mysubstr($s, $f, $l) {
-	if (function_exists("mb_strcut")) {
+    if (function_exists("mb_strcut")) {
+	function mysubstr($s, $f, $l) {
 	    return mb_strcut($s, $f, $l, _CHARSET);
-	} else {
+	}
+    } else {
+	function mysubstr($s, $f, $l) {
 	    return substr($s, $f, $l);
 	}
     }
@@ -184,6 +186,7 @@ if (!function_exists("mysubstr")) {
 
 function refpage_get_details($ref, $uri) {
     global $trackConfig;
+
     $linked = 0;
     $checked = 0;
     $title = '';

@@ -1,6 +1,6 @@
 <?php
 // refpage module for XOOPS (admin side code)
-// $Id: index.php,v 1.18 2010/01/11 10:39:37 nobu Exp $
+// $Id: index.php,v 1.19 2010/01/31 06:04:36 nobu Exp $
 include("admin_header.php");
 include_once("../functions.php");
 
@@ -69,6 +69,8 @@ function track_list($start, $page) {
     global $xoopsDB, $xoopsModuleConfig;
     global $tags, $tblstyle;
     echo "<h4>"._AM_REFPAGE_LIST."</h4>";
+    $myts =& MyTextSanitizer::getInstance();
+    $query = isset($_GET['q'])?$myts->stripSlashesGPC($_GET['q']):"";
     $mode = isset($_GET['m'])?$_GET['m']:"";
     $opt="";
     if ($mode == 'all') {
@@ -79,7 +81,13 @@ function track_list($start, $page) {
 	$opt="&m=dis";
     }
     else $cond = "disable=0 AND";
+    if ($query) {
+	$cond .= " track_uri LIKE ".$xoopsDB->quoteString("%$query%")." AND";
+	$opt .= "&q=".urlencode($query);
+    }
+    $q = htmlspecialchars($query);
     echo "<form action='index.php' method='get'>".
+	_AM_ENTRY_QUERY." <input name=\"q\" value=\"$q\" /> &nbsp; ".
 	_AM_ENTRY_VIEW." ".myselect("m", array(''=>_AM_ENTRY_ENABLE,'dis'=>_AM_ENTRY_DISABLE, 'all'=>_AM_ENTRY_ALL), $mode).
 	" <input type='submit' value='"._SUBMIT."' />\n</form>";
 
@@ -98,7 +106,7 @@ function track_list($start, $page) {
 	    $bg = $disable?'dis':$tags[($nc++ % 2)];
 	    echo "<tr class='$bg'>".
 		"<td style='text-align: center'><input type='checkbox' name='disable[$tid]' ".($disable?"checked":"")." /><input type='hidden' name='trid[$tid]' value='1' /></td>".
-		"<td><a href='index.php?op=edit&tid=$tid'>".uri_to_name($uri)."</a></td>".
+		"<td><a href='index.php?op=edit&tid=$tid' title='$uri'>".uri_to_name($uri)."</a></td>".
 		"<td style='text-align: center'>$nlink</th><td style='text-align: center'>$count</td>".
 		"</tr>\n";
 	}

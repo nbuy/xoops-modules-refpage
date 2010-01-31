@@ -22,6 +22,7 @@ define("_AM_DBUPDATED","Update Database");
 
 define("_AM_DISABLE", "<br/>");
 define("_AM_ENTRY_VIEW", "Display status");
+define("_AM_ENTRY_QUERY", "URI filter");
 define("_AM_ENTRY_ENABLE", "Enable");
 define("_AM_ENTRY_ALL", "All");
 define("_AM_ENTRY_DISABLE", "Disable");

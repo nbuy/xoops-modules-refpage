@@ -1,7 +1,7 @@
 #
 # XOOPS 2.0 or later refpage SQL schema
 #
-# $Id: mysql.sql,v 1.5 2009/07/14 05:05:48 nobu Exp $
+# $Id: mysql.sql,v 1.6 2010/01/31 06:04:36 nobu Exp $
 
 # --------------------------------------------------------
 
@@ -30,7 +30,7 @@ CREATE TABLE refpage_ref (
   track_from int(10) unsigned NOT NULL,
   ref_url varchar(255) NOT NULL default '',
   title   varchar(255) NOT NULL default '',
-  context tinytext NOT NULL default '',
+  context text,
   nref   int(10) unsigned NOT NULL default '0',
   mtime  int(10) unsigned NOT NULL default '0',
   linked  int(1) unsigned NOT NULL default '0',

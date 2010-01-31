@@ -1,8 +1,8 @@
 <?php
-// $Id: xoops_version.php,v 1.19 2010/01/11 10:39:37 nobu Exp $
+// $Id: xoops_version.php,v 1.20 2010/01/31 06:04:36 nobu Exp $
 $modversion =
     array('name' => _MI_REFPAGE_NAME,
-	  'version' => "1.94",
+	  'version' => "1.95",
 	  'description' => _MI_REFPAGE_DESC,
 	  'author' => "Nobuhiro Yasutomi ( http://myht.org/ )",
 	  'credits' => "Nobuhiro Yasutomi",
@@ -24,10 +24,11 @@ $modversion['tables'][] = "refpage_log";
 
 // OnUpdate - upgrade DATABASE
 $modversion['onInstall'] = "oninstall.php";
+$modversion['onUpdate'] = "onupdate.php";
 
 // Admin things
 $modversion['hasAdmin'] = 1;
-$modversion['adminindex'] = "admin/index.php";
+$modversion['adminindex'] = "admin/help.php";
 $modversion['adminmenu'] = "admin/menu.php";
 
 // Templates
@@ -50,7 +51,7 @@ $modversion['blocks'][1] =
 // Menu
 $modversion['hasMain'] = 1;
 $modversion['sub'][] = array('name' => _MI_REFPAGE_SMENU1,
-			     'url' => "index.php?id=all");
+			     'url' => "index.php?id=0");
 
 
 // Config

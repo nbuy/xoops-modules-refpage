@@ -21,6 +21,7 @@ define("_AM_DBUPDATED","データベースを更新しました");
 
 define("_AM_DISABLE", "<br/>");
 define("_AM_ENTRY_VIEW", "状態による表示");
+define("_AM_ENTRY_QUERY", "URI 絞り込み");
 define("_AM_ENTRY_ENABLE", "有効");
 define("_AM_ENTRY_ALL", "すべて");
 define("_AM_ENTRY_DISABLE", "無効");
