@@ -20,6 +20,8 @@ case 'edit_update':
 case 'check_update':
     check_update();
     exit;
+case 'expire':
+    if (isset($_POST['commit'])) commit_expire();
 }
 
 if( ! empty( $_GET['lib'] ) ) {
@@ -54,8 +56,7 @@ switch ($op) {
      track_disalbe();
      break;
  case 'expire':
-     if (isset($_POST['commit'])) commit_expire();
-     else track_expire();
+     track_expire();
      break;
  default:
      track_list($start, $page);

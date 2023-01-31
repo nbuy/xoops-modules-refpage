@@ -2,7 +2,7 @@
 // $Id: xoops_version.php,v 1.20 2010/01/31 06:04:36 nobu Exp $
 $modversion =
     array('name' => _MI_REFPAGE_NAME,
-	  'version' => "1.95",
+	  'version' => "1.96",
 	  'description' => _MI_REFPAGE_DESC,
 	  'author' => "Nobuhiro Yasutomi ( http://myht.org/ )",
 	  'credits' => "Nobuhiro Yasutomi",
@@ -24,7 +24,7 @@ $modversion['tables'][] = "refpage_log";
 
 // OnUpdate - upgrade DATABASE
 $modversion['onInstall'] = "oninstall.php";
-$modversion['onUpdate'] = "onupdate.php";
+#$modversion['onUpdate'] = "onupdate.php";
 
 // Admin things
 $modversion['hasAdmin'] = 1;

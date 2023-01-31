@@ -43,7 +43,7 @@ if ($track_id === "all") {
 	$popt = ($page>1)?"&page=$page":"";
 	$ordstr = sprintf($order=="nref DESC"?"<b>%s</b>":"<a href='index.php?id=all$popt'>%s</a>",_TB_ORDER_NREF).
 	    " | ".sprintf($order=="mtime DESC"?"<b>%s</b>":"<a href='index.php?id=all&order=time$popt'>%s</a>",_TB_ORDER_TIME);
-	$xoopsTpl->assign('page_control', make_page_index("$ordstr - "._TB_PAGE, $nrec, $page, " <a href='index.php?id=$track_id$opt&page=%d'>(%d)</a>"));
+	$xoopsTpl->assign('page_control', make_page_index("$ordstr - "._TB_PAGE, $nrec, $page, " <a href='index.php?id=$track_id$opt&amp;page=%d'>(%d)</a>"));
 
 	$referers = array();
 	while ($data=$xoopsDB->fetchArray($result)) {
@@ -66,7 +66,7 @@ if ($track_id === "all") {
     if ($nrec) {
 	$xoopsOption['template_main'] = 'refpage_index.html';
 
-	$xoopsTpl->assign('page_control', make_page_index(_TB_PAGE, $nrec, $page, " <a href='index.php?page=%d'>(%d)</a>"));
+	$xoopsTpl->assign('page_control', make_page_index(_TB_PAGE, $nrec, $page, " <a href='index.php?id=0&amp;page=%d'>(%d)</a>"));
 	$pages = array();
 	while ($pg=$xoopsDB->fetchArray($result)) {
 	    $start++;

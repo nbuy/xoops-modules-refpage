@@ -3,16 +3,16 @@
 <head>
 <title>Refpage module for XOOPS</title>
 <style>
+.outer { background-color: #808080; }
 td,th { padding: 4px; background: #e8e8e8;}
-h1,h2,h3 { color: #008000; }
-pre { color: #600000; margin-left: 2em;}
-em { color: #c00000; }
-.hd th  { padding: 4px; background: #d0d0d0; }
+.head th  { padding: 4px; background: #d0d0d0; }
 .bnf { color: #008000; }
-.note { font-size: 80%; color: #800000; padding: 0.5em;}
 </style>
 </head>
 <body>
+<style>
+.note { font-size: 90%; color: #800000; padding: 0.5em;}
+</style>
 <h1>Refpage module for XOOPS</h1>
 
 <blockquote>
@@ -25,7 +25,15 @@ Also other language translation are welcome.
 <p>In this module add to XOOPS function, Records and Display
 referer pages information.</p>
 
-<h2>Requires</h2>
+<ul>
+  <li><a href="#requirement">Requirement</a></li>
+  <li><a href="#install">Install and Using</a></li>
+  <li><a href="#style">Stylesheet</a></li>
+  <li><a href="#admin">Administration</a></li>
+  <li><a href="#changes">Changes</a></li>
+</ul>
+
+<a name="requirement"></a><h2>Requirement</h2>
 
 This module require following:
 
@@ -35,7 +43,7 @@ This module require following:
   <li>License is GPL2 (same as XOOPS)</li>
 </ul>
 
-<h2>Install and Using</h2>
+<a name="install"></a><h2>Install and Using</h2>
 
 Expand archive in modules directory (XOOPS_ROOT_PATH/modules/),
 and Install via XOOPS module administration.
@@ -57,7 +65,7 @@ If You want hide information in block, Set "Show referer information in block: D
 
 Set above finished, after to work automatic.
 
-<h2>Stylesheet</h2>
+<a name="style"></a><h2>Stylesheet</h2>
 
 Display page in this module, using stylesheet if you want to modify like font
 sizes and/or colors. Concretely, add class in themes style.css or xoops.css in root as with following:
@@ -71,7 +79,7 @@ sizes and/or colors. Concretely, add class in themes style.css or xoops.css in r
 }
 </pre>
 
-<h2>Administration</h2>
+<a name="admin"></a><h2>Administration</h2>
 
 Administration in module manipulate referer information and Setting module behavior.
 
@@ -160,15 +168,14 @@ Administration in module manipulate referer information and Setting module behav
 Block Administration to edit this module block. There is additional option 
 display lines and length in linked page title in block.
 
-<h2>Thanks</h2>
+<a name="acknowledgments"></a><h2>Acknowledgments</h2>
 
-In this module development, nao-pon (<a
-href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggestions. Also t_miyabi and toshii reported testing module at forum in jp.XOOPS.org. Thank you cooperation.
+In this module development, nao-pon (<a href="http://hypweb.net/xoops/">Site</a>) to give some enhance code and suggestions. Also t_miyabi and toshii reported testing module at forum in jp.XOOPS.org. Thank you cooperation.
 
 <a name="changes"></a><h2>Changes</h2>
 
 <dl>
-  <dd>[2010/01/31] refpage 1.95 (2.0β2)
+  <dd>[2010/01/31] refpage 1.95 (2.0beta2)
     <ul>
       <li>Add URI filter at admin page</li>
       <li>Add about in admin menu</li>

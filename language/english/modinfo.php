@@ -15,9 +15,11 @@ define("_MI_REFPAGE_SMENU1","All of site");
 define("_MI_REFPAGE_ADMENU1","Edit refpage info");
 define("_MI_REFPAGE_ADMENU2","Check for origin");
 define("_MI_REFPAGE_ADMENU4","Delete expired");
+define("_MI_REFPAGE_ABOUT","About refpage");
 
 //Templates
 define("_MI_RP_INDEX_TPL","List of referenced pages");
+define("_MI_RP_REFERER_TPL","Detail list of referenced page");
 
 //Configs
 define("_MI_RPCF_EXCLUDE","Not display link");

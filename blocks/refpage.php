@@ -51,7 +51,7 @@ function b_refpage_log_show($options) {
 
     if ($tid && !empty($ref)) {
 	$refq= $xoopsDB->quoteString($ref);
-	$result = $xoopsDB->query("SELECT ref_id,nref,mtime,checked FROM $tbr WHERE ref_url=$refq AND track_from=$tid");
+	$result = $xoopsDB->query("SELECT ref_id,nref,if(context,mtime,NULL),checked FROM $tbr WHERE ref_url=$refq AND track_from=$tid");
 	$ip = $_SERVER["REMOTE_ADDR"];
 	$log = $xoopsDB->prefix("refpage_log");
 	$exreg = list_to_regexp($trackConfig['exclude']);
@@ -136,7 +136,7 @@ function b_refpage_log_show($options) {
 		}
 	        $alt = "";
 		if (strlen($title)>$trim) {
-		    $data['alt'] = " title='$title'";
+		    $data['alt'] = " title=\"$title\"";
 		    $title=mysubstr($title, 0, $trim)."..";
 		}
 		$data['title'] = $title;
@@ -147,8 +147,10 @@ function b_refpage_log_show($options) {
 	    if ($nrec>$max) {
 		$block['rest'] = sprintf(_MB_REFPAGE_REST, $nrec-$max);
 	    }
-	    if (mod_allow_access($dirname)) {
-		$block['more'] = XOOPS_URL."/modules/$dirname/index.php?id=$tid";
+	    if ($block['perm'] = mod_allow_access($dirname)) {
+		$moddir = XOOPS_URL."/modules/$dirname";
+		$block['admin'] = "$moddir/admin/index.php?op=edit&amp;tid=$tid";
+		$block['more'] = "$moddir/index.php?id=$tid";
 	    }
 	}
     }
@@ -253,9 +255,16 @@ function mod_allow_access($dirname) {
     $modhandler =& xoops_gethandler('module');
     $mod =& $modhandler->getByDirname($dirname);
     $handler =& xoops_gethandler('groupperm');
-    return (!empty($xoopsUser) &&
-	    $handler->checkRight("module_read", $mod->getVar("mid"), $xoopsUser->getGroups())) ||
-	$handler->checkRight("module_read", $mod->getVar("mid"), XOOPS_GROUP_ANONYMOUS);
+    $ret = 0;
+    if (is_object($xoopsUser)) {
+	$grps = $xoopsUser->getGroups();
+	$mid = $mod->getVar("mid");
+	if ($handler->checkRight("module_admin", $mid, $grps)) $ret=2;
+	if ($handler->checkRight("module_read", $mid, $grps)) $ret++;
+    } else {
+	if ($handler->checkRight("module_read", $mod->getVar("mid"), XOOPS_GROUP_ANONYMOUS)) $ret++;
+    }
+    return $ret;
 }
 
 ?>

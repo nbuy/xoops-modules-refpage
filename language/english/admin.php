@@ -3,7 +3,6 @@ define("_AM_REFPAGE_LIST", "Index of reference pages");
 define("_AM_TRACK_LIST", "Index");
 define("_AM_REFPAGE_CHECK","Check for origin page");
 define("_AM_REFPAGE_PAGE", "Reference Page information");
-define("_AM_TRACK_THRESHOLD", "valid access threshold");
 define("_AM_TRACK_NODATA", "No tracking DATA");
 define("_AM_DONT", "Don't");
 define("_AM_DO", "Do it");
