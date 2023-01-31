@@ -17,7 +17,7 @@ CREATE TABLE refpage (
   disable int(1) unsigned NOT NULL default '0',
   PRIMARY KEY  (track_id),
   KEY track_id (track_uri)
-) TYPE=MyISAM;
+);
 # --------------------------------------------------------
 
 #
@@ -37,7 +37,7 @@ CREATE TABLE refpage_ref (
   checked int(1) unsigned NOT NULL default '0',
   PRIMARY KEY  (ref_id),
   KEY ref_id (ref_url)
-) TYPE=MyISAM;
+);
 # --------------------------------------------------------
 
 #
@@ -51,4 +51,4 @@ CREATE TABLE refpage_log (
   rfrom int(10) unsigned,
   ip    varchar(15) NOT NULL default '',
   PRIMARY KEY  (log_id)
-) TYPE=MyISAM;
+);
