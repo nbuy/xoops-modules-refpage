@@ -7,7 +7,7 @@ include_once("../functions.php");
 $op = "";
 if ( isset($_GET['op']) ) $op = $_GET['op'];
 if ( isset($_POST['op']) ) $op = $_POST['op'];
-$page = isset($_GET['page'])?$_GET['page']:1;
+$page = isset($_GET['page'])?(int)$_GET['page']:1;
 $start = ($page>1)?($page-1)*$xoopsModuleConfig['list_max']:0;
 
 $myts =& MyTextSanitizer::getInstance();
