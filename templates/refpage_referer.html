@@ -2,7 +2,7 @@
     <!-- show xoops_breadcrumbs -->
   <p class="rp_title">
   <{foreach from=$xoops_breadcrumbs item=crumb name=bread}>
-    <{if $crumb.url}>
+    <{if !empty($crumb.url)}>
       <a href="<{$crumb.url}>"><{$crumb.name}></a>
     <{else}>
       <b><{$crumb.name}></b>
@@ -18,7 +18,7 @@
       <td class="trackitem">
 	<{$ref.seq}>.
 	<a href="<{$ref.ref_url}>"$alt $attr class="trtitle"><{$ref.title}></a>
-	<{if $ref.track_uri}><{$smarty.const._TB_LINKTO}> <a href="<{$ref.track_uri}>"><{$ref.linkto}></a><{/if}>
+	<{if !empty($ref.track_uri)}><{$smarty.const._TB_LINKTO}> <a href="<{$ref.track_uri}>"><{$ref.linkto}></a><{/if}>
 	<div class="trtext"><{if $ref.context}><{$smarty.const._TB_LEADER}><{$ref.context}><{$smarty.const._TB_LEADER}><{/if}></div>
 	<div class="trinfo">
 	<{$smarty.const._TB_REF_COUNT}>:<{$ref.nref}>
@@ -26,7 +26,7 @@
 	    <{if $ref.mtime>60}>[<{$smarty.const._TB_REF_MDATE}> <{$ref.mdate}>]<{/if}><br/>
 	<{$smarty.const._TB_REF_URL}>
 	 <a href="<{$ref.ref_url}>"><{$ref.ref_url|escape}></a></div>
-	<{if $ref.refs}>
+	<{if !empty($ref.refs)}>
 	  <div class="trinfo">
 	    <{$smarty.const._TB_REF_NURL}>: <{$ref.n}>
 	    <{foreach from=$ref.refs key=i item=v}>
