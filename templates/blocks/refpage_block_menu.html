@@ -1,4 +1,4 @@
-<{if isset($block.rows)}>
+<{if !empty($block.rows)}>
 <ul>
   <{foreach from=$block.rows item=ent}>
   <li><a href="<{$ent.url}>"<{$ent.alt}> target="_black"><{$ent.title}></a> (<{$ent.nref}>)</li>
